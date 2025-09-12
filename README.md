@@ -15,7 +15,7 @@ npm install gantt-task-react
 ## How to use it
 
 ```javascript
-import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
+import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption, getProgressForProject } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 
 let tasks: Task[] = [
@@ -43,6 +43,8 @@ You may handle actions
   onDateChange={onTaskChange}
   onTaskDelete={onTaskDelete}
   onProgressChange={onProgressChange}
+  onWeightChange={onWeightChange}
+  onWeightsChange={onWeightsChange}
   onDoubleClick={onDblClick}
   onClick={onClick}
 />
@@ -69,16 +71,18 @@ npm start
 
 ### EventOption
 
-| Parameter Name     | Type                                                                          | Description                                                                             |
-| :----------------- | :---------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| onSelect           | (task: Task, isSelected: boolean) => void                                     | Specifies the function to be executed on the taskbar select or unselect event.          |
-| onDoubleClick      | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onDoubleClick event.               |
-| onClick            | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onClick event.                     |
-| onDelete\*         | (task: Task) => void/boolean/Promise<void>/Promise<boolean>                   | Specifies the function to be executed on the taskbar on Delete button press event.      |
-| onDateChange\*     | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Specifies the function to be executed when drag taskbar event on timeline has finished. |
-| onProgressChange\* | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Specifies the function to be executed when drag taskbar progress event has finished.    |
-| onExpanderClick\*  | onExpanderClick: (task: Task) => void;                                        | Specifies the function to be executed on the table expander click                       |
-| timeStep           | number                                                                        | A time step value for onDateChange. Specify in milliseconds.                            |
+| Parameter Name       | Type                                                                          | Description                                                                                       |
+| :------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
+| onSelect             | (task: Task, isSelected: boolean) => void                                     | Specifies the function to be executed on the taskbar select or unselect event.                    |
+| onDoubleClick        | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onDoubleClick event.                         |
+| onClick              | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onClick event.                               |
+| onDelete\*           | (task: Task) => void/boolean/Promise<void>/Promise<boolean>                   | Specifies the function to be executed on the taskbar on Delete button press event.                |
+| onDateChange\*       | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task dates change (drag or via table).                                             |
+| onProgressChange\*   | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task progress changes (drag or via table).                                         |
+| onWeightChange\*     | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a single task weight changes via the table.                                          |
+| onWeightsChange\*    | (tasks: Task[]) => void/boolean/Promise<void>/Promise<boolean>               | Optional batch handler invoked when multiple task weights are redistributed proportionally.       |
+| onExpanderClick\*    | (task: Task) => void                                                          | Specifies the function to be executed on the table expander click                                 |
+| timeStep             | number                                                                        | A time step value for onDateChange. Specify in milliseconds.                                      |
 
 \* Chart undoes operation if method return false or error. Parameter children returns one level deep records.
 
@@ -119,30 +123,39 @@ npm start
 
 - TooltipContent: [`React.FC<{ task: Task; fontSize: string; fontFamily: string; }>;`](https://github.com/MaTeMaTuK/gantt-task-react/blob/main/src/components/other/tooltip.tsx#L56)
 - TaskListHeader: `React.FC<{ headerHeight: number; rowWidth: string; fontFamily: string; fontSize: string;}>;`
-- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; }>;`
+- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; onExpanderClick: (task: Task) => void; onDateChange?: (...); onProgressChange?: (...); onWeightChange?: (...); onWeightsChange?: (tasks: Task[]) => void; }>;`
 
 ### Task
 
-| Parameter Name | Type     | Description                                                                                           |
-| :------------- | :------- | :---------------------------------------------------------------------------------------------------- |
-| id\*           | string   | Task id.                                                                                              |
-| name\*         | string   | Task display name.                                                                                    |
-| type\*         | string   | Task display type: **task**, **milestone**, **project**                                               |
-| start\*        | Date     | Task start date.                                                                                      |
-| end\*          | Date     | Task end date.                                                                                        |
-| progress\*     | number   | Task progress. Sets in percent from 0 to 100.                                                         |
-| dependencies   | string[] | Specifies the parent dependencies ids.                                                                |
-| styles         | object   | Specifies the taskbar styling settings locally. Object is passed with the following attributes:       |
-|                |          | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                   |
-|                |          | - **backgroundSelectedColor**: String. Specifies the taskbar background fill color locally on select. |
-|                |          | - **progressColor**: String. Specifies the taskbar progress fill color locally.                       |
-|                |          | - **progressSelectedColor**: String. Specifies the taskbar progress fill color globally on select.    |
-| isDisabled     | bool     | Disables all action for current task.                                                                 |
-| fontSize       | string   | Specifies the taskbar font size locally.                                                              |
-| project        | string   | Task project name                                                                                     |
-| hideChildren   | bool     | Hide children items. Parameter works with project type only                                           |
+| Parameter Name | Type     | Description                                                                                                        |
+| :------------- | :------- | :----------------------------------------------------------------------------------------------------------------- |
+| id\*           | string   | Task id.                                                                                                           |
+| name\*         | string   | Task display name.                                                                                                 |
+| type\*         | string   | Task display type: **task**, **milestone**, **project**                                                            |
+| start\*        | Date     | Task start date.                                                                                                   |
+| end\*          | Date     | Task end date.                                                                                                     |
+| progress\*     | number   | Task progress. Sets in percent from 0 to 100. (ignored for milestones)                                            |
+| weight         | number   | Optional task weight (1–100). Used to compute project progress; siblings are redistributed proportionally.         |
+| dependencies   | string[] | Specifies the parent dependencies ids.                                                                             |
+| styles         | object   | Specifies the taskbar styling settings locally. Object is passed with the following attributes:                    |
+|                |          | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                                |
+|                |          | - **backgroundSelectedColor**: String. Specifies the taskbar background fill color locally on select.              |
+|                |          | - **progressColor**: String. Specifies the taskbar progress fill color locally.                                    |
+|                |          | - **progressSelectedColor**: String. Specifies the taskbar progress fill color globally on select.                 |
+| isDisabled     | bool     | Disables all action for current task.                                                                              |
+| fontSize       | string   | Specifies the taskbar font size locally.                                                                           |
+| project        | string   | Task project name                                                                                                  |
+| hideChildren   | bool     | Hide children items. Parameter works with project type only                                                        |
 
 \*Required
+
+## New in this fork
+
+- Task list table now supports native date inputs for the “From” and “To” columns.
+- New “Weight” column next to “Progress”. Weight is editable for non-disabled tasks and must be at least 1.
+- When a task’s weight changes, sibling task weights within the same project are redistributed proportionally so the total remains 100. Disabled tasks keep their weights fixed. If you provide `onWeightsChange`, you will receive a single batched update; otherwise `onWeightChange` is called for each affected task.
+- Milestones do not display or edit weight or progress in the task list and are excluded from project progress calculations.
+- Exported helper `getProgressForProject(tasks, projectId)` computes duration/weight-based project progress.
 
 ## License
 

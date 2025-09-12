@@ -17,6 +17,21 @@ export type TaskListProps = {
   selectedTask: BarTask | undefined;
   setSelectedTask: (task: string) => void;
   onExpanderClick: (task: Task) => void;
+  onDateChange?: (
+    task: Task,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
+  onProgressChange?: (
+    task: Task,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
+  onWeightsChange?: (
+    tasks: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
+  onWeightChange?: (
+    task: Task,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
   TaskListHeader: React.FC<{
     headerHeight: number;
     rowWidth: string;
@@ -33,6 +48,21 @@ export type TaskListProps = {
     selectedTaskId: string;
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
+    onDateChange?: (
+      task: Task,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    onProgressChange?: (
+      task: Task,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    onWeightsChange?: (
+      tasks: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    onWeightChange?: (
+      task: Task,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
   }>;
 };
 
@@ -53,6 +83,10 @@ export const TaskList: React.FC<TaskListProps> = ({
   horizontalContainerClass,
   TaskListHeader,
   TaskListTable,
+  onDateChange,
+  onProgressChange,
+  onWeightsChange,
+  onWeightChange,
 }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -78,6 +112,10 @@ export const TaskList: React.FC<TaskListProps> = ({
     selectedTaskId: selectedTaskId,
     setSelectedTask,
     onExpanderClick,
+    onDateChange,
+    onProgressChange,
+    onWeightsChange,
+    onWeightChange,
   };
 
   return (

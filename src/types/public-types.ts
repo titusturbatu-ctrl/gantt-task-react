@@ -20,6 +20,10 @@ export interface Task {
    * From 0 to 100
    */
   progress: number;
+  /**
+   * Optional weight (0-100) for how much this task contributes to its project's progress.
+   */
+  weight?: number;
   styles?: {
     backgroundColor?: string;
     backgroundSelectedColor?: string;
@@ -61,6 +65,19 @@ export interface EventOption {
    * Invokes on progress change. Chart undoes operation if method return false or error.
    */
   onProgressChange?: (
+    task: Task,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
+  /**
+   * Invokes when multiple task weights change at once (e.g., redistribution).
+   */
+  onWeightsChange?: (
+    tasks: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
+  /**
+   * Invokes on weight change. Chart undoes operation if method return false or error.
+   */
+  onWeightChange?: (
     task: Task,
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
@@ -137,6 +154,33 @@ export interface StylingOption {
      */
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
+    /**
+     * Invokes on end and start time change from the task list table.
+     */
+    onDateChange?: (
+      task: Task,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    /**
+     * Invokes on progress change from the task list table.
+     */
+    onProgressChange?: (
+      task: Task,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    /**
+     * Invokes when multiple task weights change at once (e.g., redistribution).
+     */
+    onWeightsChange?: (
+      tasks: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    /**
+     * Invokes on weight change from the task list table.
+     */
+    onWeightChange?: (
+      task: Task,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
   }>;
 }
 

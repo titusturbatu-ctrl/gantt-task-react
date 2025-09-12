@@ -60,6 +60,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   TaskListTable = TaskListTableDefault,
   onDateChange,
   onProgressChange,
+  onWeightsChange,
+  onWeightChange,
   onDoubleClick,
   onClick,
   onDelete,
@@ -448,6 +450,10 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     onExpanderClick: handleExpanderClick,
     TaskListHeader,
     TaskListTable,
+    onDateChange,
+    onProgressChange,
+    onWeightsChange,
+    onWeightChange,
   };
   return (
     <div>

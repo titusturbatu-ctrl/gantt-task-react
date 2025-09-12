@@ -59,3 +59,26 @@ export const sortTasks = (taskA: Task, taskB: Task) => {
     return 0;
   }
 };
+
+/**
+ * Calculates a project's progress as a duration-weighted average of its child tasks' progress.
+ * If there are no child tasks, returns 0.
+ */
+export function getProgressForProject(tasks: Task[], projectId: string) {
+  const projectTasks = tasks.filter(
+    t => t.project === projectId && t.type === "task"
+  );
+  if (projectTasks.length === 0) {
+    return 0;
+  }
+  let totalWeight = 0;
+  let weighted = 0;
+  for (const t of projectTasks) {
+    const duration = Math.max(1, t.end.getTime() - t.start.getTime());
+    const taskWeightPercent = t.weight ?? 0;
+    const weight = taskWeightPercent > 0 ? taskWeightPercent : duration;
+    totalWeight += weight;
+    weighted += weight * t.progress;
+  }
+  return Math.round(weighted / totalWeight);
+}

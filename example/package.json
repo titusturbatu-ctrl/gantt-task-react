@@ -7,7 +7,9 @@
     "start": "node ../node_modules/react-scripts/bin/react-scripts.js start",
     "build": "node ../node_modules/react-scripts/bin/react-scripts.js build",
     "test": "node ../node_modules/react-scripts/bin/react-scripts.js test",
-    "eject": "node ../node_modules/react-scripts/bin/react-scripts.js eject"
+    "eject": "node ../node_modules/react-scripts/bin/react-scripts.js eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@testing-library/jest-dom": "file:../node_modules/@testing-library/jest-dom",
@@ -21,7 +23,8 @@
     "postcss-preset-env": "file:../node_modules/postcss-preset-env",
     "react": "file:../node_modules/react",
     "react-dom": "file:../node_modules/react-dom",
-    "react-scripts": "file:../node_modules/react-scripts"
+    "react-scripts": "file:../node_modules/react-scripts",
+    "gh-pages": "^6.1.0"
   },
   "devDependencies": {
   },

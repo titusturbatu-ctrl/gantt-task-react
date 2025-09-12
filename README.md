@@ -4,7 +4,7 @@
 
 ![example](https://user-images.githubusercontent.com/26743903/88215863-f35d5f00-cc64-11ea-81db-e829e6e9b5c8.png)
 
-## [Live Demo](https://matematuk.github.io/gantt-task-react/)
+## [Live Demo](https://titusturbatu-ctrl.github.io/gantt-task-react/)
 
 ## Install
 
@@ -84,7 +84,7 @@ npm start
 | onExpanderClick\*    | (task: Task) => void                                                          | Specifies the function to be executed on the table expander click                                 |
 | timeStep             | number                                                                        | A time step value for onDateChange. Specify in milliseconds.                                      |
 
-\* Chart undoes operation if method return false or error. Parameter children returns one level deep records.
+* Chart undoes operation if method return false or error. Parameter children returns one level deep records.
 
 ### DisplayOption
 
@@ -147,7 +147,7 @@ npm start
 | project        | string   | Task project name                                                                                                  |
 | hideChildren   | bool     | Hide children items. Parameter works with project type only                                                        |
 
-\*Required
+*Required
 
 ## New in this fork
 

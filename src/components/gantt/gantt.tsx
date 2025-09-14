@@ -60,8 +60,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   TaskListTable = TaskListTableDefault,
   onDateChange,
   onProgressChange,
-  onWeightsChange,
-  onWeightChange,
+  
   onDoubleClick,
   onClick,
   onDelete,
@@ -108,7 +107,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     } else {
       filteredTasks = tasks;
     }
-    filteredTasks = filteredTasks.sort(sortTasks);
+    // Avoid mutating original tasks array; also avoid resorting if already stable
+    filteredTasks = [...filteredTasks].sort(sortTasks);
     const [startDate, endDate] = ganttDateRange(
       filteredTasks,
       viewMode,
@@ -324,7 +324,22 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
    * Handles arrow keys events and transform it to new scroll
    */
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    event.preventDefault();
+    const target = event.target as HTMLElement | null;
+    if (target) {
+      const tag = target.tagName;
+      const isFormField = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+      if (isFormField || target.isContentEditable) {
+        // Allow typing, but still handle arrow keys for scroll only if no modifier keys
+        if (
+          event.key !== "ArrowLeft" &&
+          event.key !== "ArrowRight" &&
+          event.key !== "ArrowUp" &&
+          event.key !== "ArrowDown"
+        ) {
+          return;
+        }
+      }
+    }
     let newScrollY = scrollY;
     let newScrollX = scrollX;
     let isX = true;
@@ -347,7 +362,10 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
       case "ArrowRight":
         newScrollX += columnWidth;
         break;
+      default:
+        return;
     }
+    event.preventDefault();
     if (isX) {
       if (newScrollX < 0) {
         newScrollX = 0;
@@ -452,8 +470,6 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     TaskListTable,
     onDateChange,
     onProgressChange,
-    onWeightsChange,
-    onWeightChange,
   };
   return (
     <div>

@@ -75,10 +75,8 @@ export function getProgressForProject(tasks: Task[], projectId: string) {
   let weighted = 0;
   for (const t of projectTasks) {
     const duration = Math.max(1, t.end.getTime() - t.start.getTime());
-    const taskWeightPercent = t.weight ?? 0;
-    const weight = taskWeightPercent > 0 ? taskWeightPercent : duration;
-    totalWeight += weight;
-    weighted += weight * t.progress;
+    totalWeight += duration;
+    weighted += duration * t.progress;
   }
   return Math.round(weighted / totalWeight);
 }

@@ -7,20 +7,7 @@ import "gantt-task-react/dist/index.css";
 // Init
 const App = () => {
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
-  const [tasks, setTasks] = React.useState<Task[]>(() => {
-    const t = initTasks();
-    // assign default weights per project: 100 / tasksCount
-    const projects = new Set(t.filter(x => x.type === "project").map(x => x.id));
-    const newTasks = t.map(x => ({ ...x }));
-    projects.forEach(pid => {
-      const children = newTasks.filter(c => c.project === pid && c.type === "task");
-      if (children.length > 0) {
-        const w = Math.round(100 / children.length);
-        for (const c of children) c.weight = w;
-      }
-    });
-    return newTasks;
-  });
+  const [tasks, setTasks] = React.useState<Task[]>(() => initTasks());
   const [isChecked, setIsChecked] = React.useState(true);
   let columnWidth = 65;
   if (view === ViewMode.Year) {
@@ -116,26 +103,7 @@ const App = () => {
     setTasks(newTasks);
   };
 
-  const handleWeightChange = async (task: Task) => {
-    console.log("On weight change Id:" + task.id);
-    // Multiple sibling updates may arrive synchronously; use functional update to merge.
-    setTasks(prev => {
-      let newTasks = prev.map(t => (t.id === task.id ? task : t));
-      const projectId = task.project || (task.type === "project" ? task.id : undefined);
-      if (projectId) {
-        const projectIndex = newTasks.findIndex(t => t.id === projectId);
-        if (projectIndex >= 0) {
-          const progress = getProgressForProject(newTasks, projectId);
-          const project = newTasks[projectIndex];
-          if (project.progress !== progress) {
-            const changedProject = { ...project, progress };
-            newTasks = newTasks.map(t => (t.id === projectId ? changedProject : t));
-          }
-        }
-      }
-      return newTasks;
-    });
-  };
+  
 
   const handleDblClick = (task: Task) => {
     alert("On Double Click event Id:" + task.id);
@@ -168,7 +136,7 @@ const App = () => {
         onDateChange={handleTaskChange}
         onDelete={handleTaskDelete}
         onProgressChange={handleProgressChange}
-        onWeightChange={handleWeightChange}
+        
         onDoubleClick={handleDblClick}
         onClick={handleClick}
         onSelect={handleSelect}

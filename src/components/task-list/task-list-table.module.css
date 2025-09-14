@@ -37,3 +37,18 @@
   padding-left: 1rem;
   user-select: none;
 }
+
+/* Inputs in task list cells: transparent background and no border */
+.taskListCell input[type="date"],
+.taskListCell input[type="number"] {
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* Ensure disabled inputs have same text color as enabled */
+.taskListCell input[disabled] {
+  color: inherit;
+  -webkit-text-fill-color: currentColor; /* Safari */
+  opacity: 1; /* prevent dimming */
+}

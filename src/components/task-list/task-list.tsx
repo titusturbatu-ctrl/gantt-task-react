@@ -25,13 +25,7 @@ export type TaskListProps = {
     task: Task,
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
-  onWeightsChange?: (
-    tasks: Task[]
-  ) => void | boolean | Promise<void> | Promise<boolean>;
-  onWeightChange?: (
-    task: Task,
-    children: Task[]
-  ) => void | boolean | Promise<void> | Promise<boolean>;
+  
   TaskListHeader: React.FC<{
     headerHeight: number;
     rowWidth: string;
@@ -56,13 +50,7 @@ export type TaskListProps = {
       task: Task,
       children: Task[]
     ) => void | boolean | Promise<void> | Promise<boolean>;
-    onWeightsChange?: (
-      tasks: Task[]
-    ) => void | boolean | Promise<void> | Promise<boolean>;
-    onWeightChange?: (
-      task: Task,
-      children: Task[]
-    ) => void | boolean | Promise<void> | Promise<boolean>;
+    
   }>;
 };
 
@@ -85,8 +73,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   TaskListTable,
   onDateChange,
   onProgressChange,
-  onWeightsChange,
-  onWeightChange,
+  
 }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -114,8 +101,6 @@ export const TaskList: React.FC<TaskListProps> = ({
     onExpanderClick,
     onDateChange,
     onProgressChange,
-    onWeightsChange,
-    onWeightChange,
   };
 
   return (

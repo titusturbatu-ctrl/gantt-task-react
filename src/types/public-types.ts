@@ -20,10 +20,7 @@ export interface Task {
    * From 0 to 100
    */
   progress: number;
-  /**
-   * Optional weight (0-100) for how much this task contributes to its project's progress.
-   */
-  weight?: number;
+  
   styles?: {
     backgroundColor?: string;
     backgroundSelectedColor?: string;
@@ -68,19 +65,7 @@ export interface EventOption {
     task: Task,
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
-  /**
-   * Invokes when multiple task weights change at once (e.g., redistribution).
-   */
-  onWeightsChange?: (
-    tasks: Task[]
-  ) => void | boolean | Promise<void> | Promise<boolean>;
-  /**
-   * Invokes on weight change. Chart undoes operation if method return false or error.
-   */
-  onWeightChange?: (
-    task: Task,
-    children: Task[]
-  ) => void | boolean | Promise<void> | Promise<boolean>;
+  
   /**
    * Invokes on delete selected task. Chart undoes operation if method return false or error.
    */
@@ -168,19 +153,7 @@ export interface StylingOption {
       task: Task,
       children: Task[]
     ) => void | boolean | Promise<void> | Promise<boolean>;
-    /**
-     * Invokes when multiple task weights change at once (e.g., redistribution).
-     */
-    onWeightsChange?: (
-      tasks: Task[]
-    ) => void | boolean | Promise<void> | Promise<boolean>;
-    /**
-     * Invokes on weight change from the task list table.
-     */
-    onWeightChange?: (
-      task: Task,
-      children: Task[]
-    ) => void | boolean | Promise<void> | Promise<boolean>;
+    
   }>;
 }
 

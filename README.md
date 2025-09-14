@@ -43,8 +43,6 @@ You may handle actions
   onDateChange={onTaskChange}
   onTaskDelete={onTaskDelete}
   onProgressChange={onProgressChange}
-  onWeightChange={onWeightChange}
-  onWeightsChange={onWeightsChange}
   onDoubleClick={onDblClick}
   onClick={onClick}
 />
@@ -79,8 +77,6 @@ npm start
 | onDelete\*           | (task: Task) => void/boolean/Promise<void>/Promise<boolean>                   | Specifies the function to be executed on the taskbar on Delete button press event.                |
 | onDateChange\*       | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task dates change (drag or via table).                                             |
 | onProgressChange\*   | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task progress changes (drag or via table).                                         |
-| onWeightChange\*     | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a single task weight changes via the table.                                          |
-| onWeightsChange\*    | (tasks: Task[]) => void/boolean/Promise<void>/Promise<boolean>               | Optional batch handler invoked when multiple task weights are redistributed proportionally.       |
 | onExpanderClick\*    | (task: Task) => void                                                          | Specifies the function to be executed on the table expander click                                 |
 | timeStep             | number                                                                        | A time step value for onDateChange. Specify in milliseconds.                                      |
 
@@ -123,7 +119,7 @@ npm start
 
 - TooltipContent: [`React.FC<{ task: Task; fontSize: string; fontFamily: string; }>;`](https://github.com/MaTeMaTuK/gantt-task-react/blob/main/src/components/other/tooltip.tsx#L56)
 - TaskListHeader: `React.FC<{ headerHeight: number; rowWidth: string; fontFamily: string; fontSize: string;}>;`
-- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; onExpanderClick: (task: Task) => void; onDateChange?: (...); onProgressChange?: (...); onWeightChange?: (...); onWeightsChange?: (tasks: Task[]) => void; }>;`
+- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; onExpanderClick: (task: Task) => void; onDateChange?: (...); onProgressChange?: (...); }>;`
 
 ### Task
 
@@ -135,7 +131,7 @@ npm start
 | start\*        | Date     | Task start date.                                                                                                   |
 | end\*          | Date     | Task end date.                                                                                                     |
 | progress\*     | number   | Task progress. Sets in percent from 0 to 100. (ignored for milestones)                                            |
-| weight         | number   | Optional task weight (1–100). Used to compute project progress; siblings are redistributed proportionally.         |
+|                |          |                                                                                                                   |
 | dependencies   | string[] | Specifies the parent dependencies ids.                                                                             |
 | styles         | object   | Specifies the taskbar styling settings locally. Object is passed with the following attributes:                    |
 |                |          | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                                |
@@ -151,11 +147,10 @@ npm start
 
 ## New in this fork
 
-- Task list table now supports native date inputs for the “From” and “To” columns.
-- New “Weight” column next to “Progress”. Weight is editable for non-disabled tasks and must be at least 1.
-- When a task’s weight changes, sibling task weights within the same project are redistributed proportionally so the total remains 100. Disabled tasks keep their weights fixed. If you provide `onWeightsChange`, you will receive a single batched update; otherwise `onWeightChange` is called for each affected task.
-- Milestones do not display or edit weight or progress in the task list and are excluded from project progress calculations.
-- Exported helper `getProgressForProject(tasks, projectId)` computes duration/weight-based project progress.
+- Task list table uses native date inputs for the “From” and “To” columns for all rows. Inputs are disabled for read-only rows but keep the same text color for visual consistency.
+- Date format is unified across editable and read-only cells as `YYYY-MM-DD`.
+- “From” and “To” columns use a compact width to fit dates comfortably.
+- Exported helper `getProgressForProject(tasks, projectId)` computes duration-based project progress.
 
 ## License
 

@@ -15,6 +15,7 @@ export const TaskListTableDefault: React.FC<{
   selectedTaskId: string;
   setSelectedTask: (taskId: string) => void;
   onExpanderClick: (task: Task) => void;
+  nameRenderer?: (task: Task) => React.ReactNode;
   onDateChange?: (
     task: Task,
     children: Task[]
@@ -31,6 +32,7 @@ export const TaskListTableDefault: React.FC<{
   fontFamily,
   fontSize,
   onExpanderClick,
+  nameRenderer,
   onDateChange,
   onProgressChange,
   
@@ -147,7 +149,7 @@ export const TaskListTableDefault: React.FC<{
                 >
                   {expanderSymbol}
                 </div>
-                <div>{t.name}</div>
+                <div>{nameRenderer ? nameRenderer(t) : t.name}</div>
               </div>
             </div>
             <div

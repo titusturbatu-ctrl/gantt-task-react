@@ -34,6 +34,26 @@ let tasks: Task[] = [
 <Gantt tasks={tasks} />
 ```
 
+### Custom name renderer (optional)
+
+- You can provide a render prop to customize only the first (Name) column in the task list. All bars, tooltips, accessibility text, and any sorting/filtering continue to use the string `task.name`.
+
+```tsx
+import { Gantt, Task } from 'gantt-task-react';
+
+const tasks: Task[] = [/* ... */];
+
+const nameRenderer = (task: Task) => (
+  <a href={`/tasks/${task.id}`}>{task.name}</a>
+);
+
+export function App() {
+  return <Gantt tasks={tasks} nameRenderer={nameRenderer} />;
+}
+```
+
+If you don’t pass `nameRenderer`, the table falls back to rendering `task.name`.
+
 You may handle actions
 
 ```javascript
@@ -119,7 +139,11 @@ npm start
 
 - TooltipContent: [`React.FC<{ task: Task; fontSize: string; fontFamily: string; }>;`](https://github.com/MaTeMaTuK/gantt-task-react/blob/main/src/components/other/tooltip.tsx#L56)
 - TaskListHeader: `React.FC<{ headerHeight: number; rowWidth: string; fontFamily: string; fontSize: string;}>;`
-- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; onExpanderClick: (task: Task) => void; onDateChange?: (...); onProgressChange?: (...); }>;`
+- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; onExpanderClick: (task: Task) => void; nameRenderer?: (task: Task) => React.ReactNode; onDateChange?: (...); onProgressChange?: (...); }>;`
+
+#### New prop on `Gantt`
+
+- `nameRenderer?: (task: Task) => React.ReactNode` — Custom renderer for the task list’s first (Name) column only. Bars, tooltips, ARIA, and any sorting/filtering continue to use the string `task.name`.
 
 ### Task
 

@@ -17,6 +17,8 @@ export type TaskListProps = {
   selectedTask: BarTask | undefined;
   setSelectedTask: (task: string) => void;
   onExpanderClick: (task: Task) => void;
+  /** Optional render prop for the first (name) column of the task list table */
+  nameRenderer?: (task: Task) => React.ReactNode;
   onDateChange?: (
     task: Task,
     children: Task[]
@@ -42,6 +44,8 @@ export type TaskListProps = {
     selectedTaskId: string;
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
+    /** Optional render prop for the first (name) column */
+    nameRenderer?: (task: Task) => React.ReactNode;
     onDateChange?: (
       task: Task,
       children: Task[]
@@ -73,6 +77,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   TaskListTable,
   onDateChange,
   onProgressChange,
+  nameRenderer,
   
 }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
@@ -99,6 +104,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     selectedTaskId: selectedTaskId,
     setSelectedTask,
     onExpanderClick,
+    nameRenderer,
     onDateChange,
     onProgressChange,
   };

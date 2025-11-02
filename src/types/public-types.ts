@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 export enum ViewMode {
   Hour = "Hour",
   QuarterDay = "Quarter Day",
@@ -139,6 +140,8 @@ export interface StylingOption {
      */
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
+    /** Optional render prop for the first (name) column */
+    nameRenderer?: (task: Task) => ReactNode;
     /**
      * Invokes on end and start time change from the task list table.
      */
@@ -159,4 +162,9 @@ export interface StylingOption {
 
 export interface GanttProps extends EventOption, DisplayOption, StylingOption {
   tasks: Task[];
+  /**
+   * Optional render prop for the task list's first (name) column only.
+   * Bars, tooltips, ARIA, sorting/filtering continue to use Task.name (string).
+   */
+  nameRenderer?: (task: Task) => ReactNode;
 }

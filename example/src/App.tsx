@@ -122,6 +122,15 @@ const App = () => {
     console.log("On expander click Id:" + task.id);
   };
 
+  // Demonstrate custom rendering of the first (Name) column in the task list.
+  // Bars, tooltips, and accessibility text still use task.name (string).
+  const nameRenderer = (task: Task) =>
+    task.type === "task" ? (
+      <a href={`#/tasks/${task.id}`}>{task.name}</a>
+    ) : (
+      task.name
+    );
+
   return (
     <div className="Wrapper">
       <ViewSwitcher
@@ -143,6 +152,7 @@ const App = () => {
         onExpanderClick={handleExpanderClick}
         listCellWidth={isChecked ? "155px" : ""}
         columnWidth={columnWidth}
+        nameRenderer={nameRenderer}
       />
     </div>
   );

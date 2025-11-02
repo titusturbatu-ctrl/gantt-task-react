@@ -149,7 +149,13 @@ export const TaskListTableDefault: React.FC<{
                 >
                   {expanderSymbol}
                 </div>
-                <div>{nameRenderer ? nameRenderer(t) : t.name}</div>
+                <div
+                  onClick={() => {
+                    if (t.type === "project") onExpanderClick(t);
+                  }}
+                >
+                  {nameRenderer ? nameRenderer(t) : t.name}
+                </div>
               </div>
             </div>
             <div

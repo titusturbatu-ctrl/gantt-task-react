@@ -138,7 +138,14 @@ export const TaskListTableDefault: React.FC<{
               }}
               title={t.name}
             >
-              <div className={styles.taskListNameWrapper}>
+              <div
+                className={
+                  [
+                    styles.taskListNameWrapper,
+                    t.type === "project" ? styles.taskListNameClickable : "",
+                  ].filter(Boolean).join(" ")
+                }
+              >
                 <div
                   className={
                     expanderSymbol

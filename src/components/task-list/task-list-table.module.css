@@ -25,6 +25,11 @@
   display: flex;
 }
 
+.taskListNameClickable {
+  user-select: none;
+  cursor: pointer;
+}
+
 .taskListExpander {
   color: rgb(86 86 86);
   font-size: 0.6rem;

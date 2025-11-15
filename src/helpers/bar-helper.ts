@@ -1,4 +1,4 @@
-import { Task } from "../types/public-types";
+import { Task, TaskStatusOption } from "../types/public-types";
 import { BarTask, TaskTypeInternal } from "../types/bar-task";
 import { BarMoveAction } from "../types/gantt-task-actions";
 
@@ -20,7 +20,8 @@ export const convertToBarTasks = (
   projectBackgroundColor: string,
   projectBackgroundSelectedColor: string,
   milestoneBackgroundColor: string,
-  milestoneBackgroundSelectedColor: string
+  milestoneBackgroundSelectedColor: string,
+  taskStatuses?: TaskStatusOption[]
 ) => {
   let barTasks = tasks.map((t, i) => {
     return convertToBarTask(
@@ -42,7 +43,8 @@ export const convertToBarTasks = (
       projectBackgroundColor,
       projectBackgroundSelectedColor,
       milestoneBackgroundColor,
-      milestoneBackgroundSelectedColor
+      milestoneBackgroundSelectedColor,
+      taskStatuses
     );
   });
 
@@ -80,7 +82,8 @@ const convertToBarTask = (
   projectBackgroundColor: string,
   projectBackgroundSelectedColor: string,
   milestoneBackgroundColor: string,
-  milestoneBackgroundSelectedColor: string
+  milestoneBackgroundSelectedColor: string,
+  taskStatuses?: TaskStatusOption[]
 ): BarTask => {
   let barTask: BarTask;
   switch (task.type) {
@@ -115,9 +118,34 @@ const convertToBarTask = (
         projectBackgroundSelectedColor
       );
       break;
-    default:
+    default: {
+      // Regular task: allow status to influence the base/background color only.
+      // Progress colors stay as the standard bar progress colors so the filled
+      // portion remains visually distinct.
+      const statusColor = resolveStatusColorForTask(task, taskStatuses);
+
+      const effectiveBarBackgroundColor =
+        statusColor ?? barBackgroundColor;
+      const effectiveBarBackgroundSelectedColor =
+        statusColor ?? barBackgroundSelectedColor;
+
+      // If we have a status color, make the progress a darker shade of that
+      // color so it remains visually distinct while matching the status hue.
+      const [effectiveBarProgressColor, effectiveBarProgressSelectedColor] =
+        statusColor
+          ? [
+              darkenColor(statusColor, 0.2),
+              darkenColor(statusColor, 0.35),
+            ]
+          : [barProgressColor, barProgressSelectedColor];
+
+      // If we have a status color, drop any precomputed styles so they don't
+      // override the effective colors on subsequent conversions.
+      const taskForBar: Task =
+        statusColor !== undefined ? { ...task, styles: undefined } : task;
+
       barTask = convertToBar(
-        task,
+        taskForBar,
         index,
         dates,
         columnWidth,
@@ -126,14 +154,79 @@ const convertToBarTask = (
         barCornerRadius,
         handleWidth,
         rtl,
-        barProgressColor,
-        barProgressSelectedColor,
-        barBackgroundColor,
-        barBackgroundSelectedColor
+        effectiveBarProgressColor,
+        effectiveBarProgressSelectedColor,
+        effectiveBarBackgroundColor,
+        effectiveBarBackgroundSelectedColor
       );
       break;
+    }
   }
   return barTask;
+};
+
+const resolveStatusColorForTask = (
+  task: Task,
+  globalStatuses?: TaskStatusOption[]
+): string | undefined => {
+  const statusId = (task as any).statusId as string | undefined;
+  if (!statusId) return undefined;
+
+  const options: TaskStatusOption[] =
+    (task as any).statuses ?? globalStatuses ?? [];
+  const matched = options.find(opt => opt.id === statusId);
+  if (!matched) return undefined;
+  if (matched.color) return matched.color;
+  return hashToColor(matched.id);
+};
+
+const hashToColor = (key: string): string => {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) | 0;
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 60%, 50%)`;
+};
+
+const darkenColor = (color: string, amount: number): string => {
+  // amount is 0..1, interpreted as how much to reduce lightness or RGB.
+  // Handle hex colors: #rgb or #rrggbb
+  const hexMatch = color.trim().match(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+  if (hexMatch) {
+    let hex = hexMatch[1];
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map(ch => ch + ch)
+        .join("");
+    }
+    const num = parseInt(hex, 16);
+    const r = (num >> 16) & 0xff;
+    const g = (num >> 8) & 0xff;
+    const b = num & 0xff;
+    const factor = 1 - amount;
+    const dr = Math.max(0, Math.min(255, Math.round(r * factor)));
+    const dg = Math.max(0, Math.min(255, Math.round(g * factor)));
+    const db = Math.max(0, Math.min(255, Math.round(b * factor)));
+    const toHex = (v: number) => v.toString(16).padStart(2, "0");
+    return `#${toHex(dr)}${toHex(dg)}${toHex(db)}`;
+  }
+
+  // Handle hsl() colors like hsl(210, 60%, 50%)
+  const hslMatch = color.trim().match(
+    /^hsl\(\s*(\d+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)$/i
+  );
+  if (hslMatch) {
+    const h = Number(hslMatch[1]);
+    const s = Number(hslMatch[2]);
+    const l = Number(hslMatch[3]);
+    const newL = Math.max(0, Math.min(100, l * (1 - amount)));
+    return `hsl(${h}, ${s}%, ${newL}%)`;
+  }
+
+  // Fallback: if we can't parse, just return the original color
+  return color;
 };
 
 const convertToBar = (

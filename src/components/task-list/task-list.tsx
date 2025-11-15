@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { BarTask } from "../../types/bar-task";
-import { Task } from "../../types/public-types";
+import { Task, TaskStatusOption } from "../../types/public-types";
 
 export type TaskListProps = {
   headerHeight: number;
@@ -27,12 +27,18 @@ export type TaskListProps = {
     task: Task,
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
-  
+  taskStatuses?: TaskStatusOption[];
+  onStatusChange?: (
+    task: Task,
+    statusId: string,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
   TaskListHeader: React.FC<{
     headerHeight: number;
     rowWidth: string;
     fontFamily: string;
     fontSize: string;
+    showStatusColumn?: boolean;
   }>;
   TaskListTable: React.FC<{
     rowHeight: number;
@@ -54,7 +60,13 @@ export type TaskListProps = {
       task: Task,
       children: Task[]
     ) => void | boolean | Promise<void> | Promise<boolean>;
-    
+    taskStatuses?: TaskStatusOption[];
+    onStatusChange?: (
+      task: Task,
+      statusId: string,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    showStatusColumn?: boolean;
   }>;
 };
 
@@ -78,7 +90,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   onDateChange,
   onProgressChange,
   nameRenderer,
-  
+  taskStatuses,
+  onStatusChange,
 }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -87,11 +100,21 @@ export const TaskList: React.FC<TaskListProps> = ({
     }
   }, [scrollY]);
 
+  const showStatusColumn = tasks.some(t => {
+    const anyTask = t as any;
+    const hasStatusList =
+      Array.isArray(anyTask.statuses) && anyTask.statuses.length > 0;
+    const hasStatusId =
+      typeof anyTask.statusId === "string" && anyTask.statusId.length > 0;
+    return hasStatusList || hasStatusId;
+  });
+
   const headerProps = {
     headerHeight,
     fontFamily,
     fontSize,
     rowWidth,
+    showStatusColumn,
   };
   const selectedTaskId = selectedTask ? selectedTask.id : "";
   const tableProps = {
@@ -107,7 +130,10 @@ export const TaskList: React.FC<TaskListProps> = ({
     nameRenderer,
     onDateChange,
     onProgressChange,
-  };
+    taskStatuses,
+    onStatusChange,
+    showStatusColumn,
+  } as const;
 
   return (
     <div ref={taskListRef}>

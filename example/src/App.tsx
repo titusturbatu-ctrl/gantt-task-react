@@ -1,13 +1,35 @@
 import React from "react";
-import { Task, ViewMode, Gantt, getProgressForProject } from "gantt-task-react";
+import {
+  Task,
+  ViewMode,
+  Gantt,
+  getProgressForProject,
+  TaskStatusOption,
+} from "gantt-task-react";
 import { ViewSwitcher } from "./components/view-switcher";
 import { getStartEndDateForProject, initTasks } from "./helper";
 import "gantt-task-react/dist/index.css";
+
+const GLOBAL_TASK_STATUSES: TaskStatusOption[] = [
+  { id: "NOT_STARTED", value: "Not started", color: "#e0e0e0" },
+  { id: "IN_PROGRESS", value: "In progress", color: "#42a5f5" },
+  { id: "COMPLETED", value: "Completed", color: "#66bb6a" },
+  { id: "BLOCKED", value: "Blocked", color: "#ef5350" },
+  { id: "ON_HOLD", value: "On hold", color: "#ffb74d" },
+  { id: "CANCELLED", value: "Cancelled", color: "#9e9e9e" },
+];
 
 // Init
 const App = () => {
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
   const [tasks, setTasks] = React.useState<Task[]>(() => initTasks());
+  const [plainTasks] = React.useState<Task[]>(() =>
+    initTasks().map(t => ({
+      ...t,
+      statusId: undefined,
+      statuses: undefined,
+    }))
+  );
   const [isChecked, setIsChecked] = React.useState(true);
   let columnWidth = 65;
   if (view === ViewMode.Year) {
@@ -103,7 +125,12 @@ const App = () => {
     setTasks(newTasks);
   };
 
-  
+  const handleStatusChange = async (task: Task, statusId: string) => {
+    console.log("On status change Id:" + task.id + " -> " + statusId);
+    setTasks(prev =>
+      prev.map(t => (t.id === task.id ? { ...task, statusId } : t))
+    );
+  };
 
   const handleDblClick = (task: Task) => {
     alert("On Double Click event Id:" + task.id);
@@ -145,7 +172,23 @@ const App = () => {
         onDateChange={handleTaskChange}
         onDelete={handleTaskDelete}
         onProgressChange={handleProgressChange}
-        
+        onStatusChange={handleStatusChange}
+        onDoubleClick={handleDblClick}
+        onClick={handleClick}
+        onSelect={handleSelect}
+        onExpanderClick={handleExpanderClick}
+        listCellWidth={isChecked ? "155px" : ""}
+        columnWidth={columnWidth}
+        nameRenderer={nameRenderer}
+        taskStatuses={GLOBAL_TASK_STATUSES}
+      />
+      <h3>Gantt Without Statuses</h3>
+      <Gantt
+        tasks={plainTasks}
+        viewMode={view}
+        onDateChange={handleTaskChange}
+        onDelete={handleTaskDelete}
+        onProgressChange={handleProgressChange}
         onDoubleClick={handleDblClick}
         onClick={handleClick}
         onSelect={handleSelect}

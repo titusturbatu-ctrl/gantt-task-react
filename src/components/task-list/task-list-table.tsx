@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./task-list-table.module.css";
-import { Task } from "../../types/public-types";
+import { Task, TaskStatusOption } from "../../types/public-types";
 
 // Removed locale date formatting cache; using input-style YYYY-MM-DD formatting for consistency
 // Removed unused verbose date display options; now using YYYY-MM-DD everywhere
@@ -24,7 +24,13 @@ export const TaskListTableDefault: React.FC<{
     task: Task,
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
-  
+  taskStatuses?: TaskStatusOption[];
+  onStatusChange?: (
+    task: Task,
+    statusId: string,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
+  showStatusColumn?: boolean;
 }> = ({
   rowHeight,
   rowWidth,
@@ -35,7 +41,9 @@ export const TaskListTableDefault: React.FC<{
   nameRenderer,
   onDateChange,
   onProgressChange,
-  
+  taskStatuses,
+  onStatusChange,
+  showStatusColumn = true,
 }) => {
   // Using input-format dates (YYYY-MM-DD) for display consistency
   const toInputDateValue = (date: Date) => {
@@ -105,8 +113,6 @@ export const TaskListTableDefault: React.FC<{
       await onProgressChange(newTask, children);
     } catch (_) {}
   };
-
-  
 
   return (
     <div
@@ -205,7 +211,55 @@ export const TaskListTableDefault: React.FC<{
                 style={{ width: "100%", boxSizing: "border-box" }}
               />
             </div>
-            
+            {showStatusColumn && (
+              <div
+                className={styles.taskListCell}
+                style={{
+                  minWidth: "140px",
+                  maxWidth: "140px",
+                  padding: "0 8px",
+                }}
+              >
+                {t.type === "task" ? (() => {
+                  const statusOptions: TaskStatusOption[] =
+                    (t as any).statuses ?? taskStatuses ?? [];
+                  const statusId: string = (t as any).statusId ?? "";
+                  return (
+                    <select
+                      value={statusId}
+                      onChange={async e => {
+                        if (!onStatusChange) return;
+                        const newStatusId = e.currentTarget.value;
+                        const newTask: Task = {
+                          ...(t as any),
+                          statusId: newStatusId,
+                        };
+                        const children = (t as any).barChildren ?? [];
+                        try {
+                          await onStatusChange(newTask, newStatusId, children);
+                        } catch (_) {}
+                      }}
+                      onKeyDown={e => e.stopPropagation()}
+                      disabled={!(
+                        onStatusChange &&
+                        !t.isDisabled &&
+                        statusOptions.length > 0
+                      )}
+                      style={{ width: "100%", boxSizing: "border-box" }}
+                    >
+                      <option value="" disabled>
+                        {statusOptions.length ? "Select status" : "No statuses"}
+                      </option>
+                      {statusOptions.map(opt => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.value}
+                        </option>
+                      ))}
+                    </select>
+                  );
+                })() : null}
+              </div>
+            )}
             <div
               className={styles.taskListCell}
               style={{

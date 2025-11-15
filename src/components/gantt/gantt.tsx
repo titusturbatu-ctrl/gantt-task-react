@@ -61,12 +61,13 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   nameRenderer,
   onDateChange,
   onProgressChange,
-  
+  onStatusChange,
   onDoubleClick,
   onClick,
   onDelete,
   onSelect,
   onExpanderClick,
+  taskStatuses,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const taskListRef = useRef<HTMLDivElement>(null);
@@ -142,7 +143,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
         projectBackgroundColor,
         projectBackgroundSelectedColor,
         milestoneBackgroundColor,
-        milestoneBackgroundSelectedColor
+        milestoneBackgroundSelectedColor,
+        taskStatuses
       )
     );
   }, [
@@ -167,6 +169,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     rtl,
     scrollX,
     onExpanderClick,
+    taskStatuses,
   ]);
 
   useEffect(() => {
@@ -472,6 +475,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     TaskListTable,
     onDateChange,
     onProgressChange,
+    taskStatuses,
+    onStatusChange,
   };
   return (
     <div>

@@ -11,6 +11,17 @@ export enum ViewMode {
   Year = "Year",
 }
 export type TaskType = "task" | "milestone" | "project";
+
+export interface TaskStatusOption {
+  id: string;
+  value: string;
+  /**
+   * Optional color used for grid row backgrounds and other status-based visuals.
+   * If omitted, a fallback deterministic color will be generated from the id.
+   */
+  color?: string;
+}
+
 export interface Task {
   id: string;
   type: TaskType;
@@ -21,7 +32,7 @@ export interface Task {
    * From 0 to 100
    */
   progress: number;
-  
+
   styles?: {
     backgroundColor?: string;
     backgroundSelectedColor?: string;
@@ -33,6 +44,16 @@ export interface Task {
   dependencies?: string[];
   hideChildren?: boolean;
   displayOrder?: number;
+  /**
+   * Id of the current status for this task. This should match one of the
+   * TaskStatusOption ids provided either globally via taskStatuses or on the task itself.
+   */
+  statusId?: string;
+  /**
+   * Optional per-task override of available status options. If provided, this
+   * takes precedence over the global taskStatuses list.
+   */
+  statuses?: TaskStatusOption[];
 }
 
 export interface EventOption {
@@ -66,7 +87,15 @@ export interface EventOption {
     task: Task,
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
-  
+  /**
+   * Invoked when a task's status is changed from the task list table.
+   * Receives the updated task, the selected status id, and its children.
+   */
+  onStatusChange?: (
+    task: Task,
+    statusId: string,
+    children: Task[]
+  ) => void | boolean | Promise<void> | Promise<boolean>;
   /**
    * Invokes on delete selected task. Chart undoes operation if method return false or error.
    */
@@ -126,6 +155,8 @@ export interface StylingOption {
     rowWidth: string;
     fontFamily: string;
     fontSize: string;
+    /** Whether to render the Status column. Defaults to true. */
+    showStatusColumn?: boolean;
   }>;
   TaskListTable?: React.FC<{
     rowHeight: number;
@@ -156,7 +187,14 @@ export interface StylingOption {
       task: Task,
       children: Task[]
     ) => void | boolean | Promise<void> | Promise<boolean>;
-    
+    taskStatuses?: TaskStatusOption[];
+    onStatusChange?: (
+      task: Task,
+      statusId: string,
+      children: Task[]
+    ) => void | boolean | Promise<void> | Promise<boolean>;
+    /** Whether to render the Status column. Defaults to true. */
+    showStatusColumn?: boolean;
   }>;
 }
 
@@ -167,4 +205,9 @@ export interface GanttProps extends EventOption, DisplayOption, StylingOption {
    * Bars, tooltips, ARIA, sorting/filtering continue to use Task.name (string).
    */
   nameRenderer?: (task: Task) => ReactNode;
+  /**
+   * Global list of available task statuses. Used for all task-type tasks that
+   * do not define their own statuses array.
+   */
+  taskStatuses?: TaskStatusOption[];
 }

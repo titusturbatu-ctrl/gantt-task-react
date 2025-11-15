@@ -171,10 +171,78 @@ npm start
 
 ## New in this fork
 
-- Task list table uses native date inputs for the “From” and “To” columns for all rows. Inputs are disabled for read-only rows but keep the same text color for visual consistency.
-- Date format is unified across editable and read-only cells as `YYYY-MM-DD`.
-- “From” and “To” columns use a compact width to fit dates comfortably.
-- Exported helper `getProgressForProject(tasks, projectId)` computes duration-based project progress.
+- **Task list table UX**
+  - Uses native date inputs for the “From” and “To” columns for all rows. Inputs are disabled for read-only rows but keep the same text color for visual consistency.
+  - Date format is unified across editable and read-only cells as `YYYY-MM-DD`.
+  - “From” and “To” columns use a compact width to fit dates comfortably.
+- **Project progress helper**
+  - Exported helper `getProgressForProject(tasks, projectId)` computes duration-based project progress.
+- **Optional task statuses (Status column + colors)**
+  - New type `TaskStatusOption`:
+    - `{ id: string; value: string; color?: string }`
+  - New optional fields on `Task`:
+    - `statusId?: string` — id of the current status for that task.
+    - `statuses?: TaskStatusOption[]` — per-task override list of available statuses.
+  - New optional props on `Gantt`:
+    - `taskStatuses?: TaskStatusOption[]` — global list of available statuses for all `type: "task"` tasks that do not define their own `statuses`.
+    - `onStatusChange?: (task: Task, statusId: string, children: Task[]) => void | boolean | Promise<void> | Promise<boolean>` — called when the user selects a new status from the Status column dropdown.
+  - When either `taskStatuses` is provided or at least one task has a `statuses` array or `statusId`, the task list shows a **Status** column with a `<select>` for `type: "task"` rows. Changing the dropdown:
+    - Updates `task.statusId` via your `onStatusChange` handler.
+    - Re-colors the bar for that task so the bar background matches the status color and the progress fill is a darker shade of that same color.
+  - If **no** tasks have any status metadata and `taskStatuses` is not provided:
+    - The Status column is **not rendered**.
+    - Bar colors behave exactly like the original library (no status-based coloring).
+
+Example usage:
+
+```tsx
+import {
+  Gantt,
+  Task,
+  TaskStatusOption,
+  getProgressForProject,
+  ViewMode,
+} from "gantt-task-react";
+
+const STATUSES: TaskStatusOption[] = [
+  { id: "NOT_STARTED", value: "Not started", color: "#e0e0e0" },
+  { id: "IN_PROGRESS", value: "In progress", color: "#42a5f5" },
+  { id: "COMPLETED", value: "Completed", color: "#66bb6a" },
+  { id: "BLOCKED", value: "Blocked", color: "#ef5350" },
+];
+
+const tasks: Task[] = [
+  {
+    id: "Task 0",
+    name: "Idea",
+    type: "task",
+    start: new Date(2020, 1, 1),
+    end: new Date(2020, 1, 2),
+    progress: 45,
+    statusId: "IN_PROGRESS",
+  },
+  // ...
+];
+
+function App() {
+  const [items, setItems] = React.useState(tasks);
+
+  const handleStatusChange = async (task: Task, statusId: string) => {
+    setItems(prev =>
+      prev.map(t => (t.id === task.id ? { ...task, statusId } : t))
+    );
+  };
+
+  return (
+    <Gantt
+      tasks={items}
+      viewMode={ViewMode.Day}
+      taskStatuses={STATUSES}
+      onStatusChange={handleStatusChange}
+    />
+  );
+}
+```
 
 ## License
 

@@ -6,7 +6,14 @@ export const TaskListHeaderDefault: React.FC<{
   rowWidth: string;
   fontFamily: string;
   fontSize: string;
-}> = ({ headerHeight, fontFamily, fontSize, rowWidth }) => {
+  showStatusColumn?: boolean;
+}> = ({
+  headerHeight,
+  fontFamily,
+  fontSize,
+  rowWidth,
+  showStatusColumn = true,
+}) => {
   return (
     <div
       className={styles.ganttTable}
@@ -68,7 +75,26 @@ export const TaskListHeaderDefault: React.FC<{
             marginTop: headerHeight * 0.25,
           }}
         />
-        
+        {showStatusColumn && (
+          <React.Fragment>
+            <div
+              className={styles.ganttTable_HeaderItem}
+              style={{
+                minWidth: "140px",
+                maxWidth: "140px",
+              }}
+            >
+              &nbsp;Status
+            </div>
+            <div
+              className={styles.ganttTable_HeaderSeparator}
+              style={{
+                height: headerHeight * 0.5,
+                marginTop: headerHeight * 0.25,
+              }}
+            />
+          </React.Fragment>
+        )}
         <div
           className={styles.ganttTable_HeaderItem}
           style={{

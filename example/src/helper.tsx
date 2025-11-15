@@ -1,4 +1,4 @@
-import { Task } from "../../dist/types/public-types";
+import { Task } from "gantt-task-react";
 
 export function initTasks() {
   const currentDate = new Date();
@@ -28,6 +28,7 @@ export function initTasks() {
       type: "task",
       project: "ProjectSample",
       displayOrder: 2,
+      statusId: "IN_PROGRESS",
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 2),
@@ -39,6 +40,7 @@ export function initTasks() {
       type: "task",
       project: "ProjectSample",
       displayOrder: 3,
+      statusId: "NOT_STARTED",
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4),
@@ -50,6 +52,7 @@ export function initTasks() {
       type: "task",
       project: "ProjectSample",
       displayOrder: 4,
+      statusId: "ON_HOLD",
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
@@ -61,6 +64,14 @@ export function initTasks() {
       type: "task",
       project: "ProjectSample",
       displayOrder: 5,
+      // Custom per-task statuses to demonstrate overrides
+      statuses: [
+        { id: "DEV_BACKLOG", value: "Dev backlog", color: "#bcaaa4" },
+        { id: "IN_DEV", value: "In dev", color: "#8d6e63" },
+        { id: "IN_QA", value: "In QA", color: "#5c6bc0" },
+        { id: "RELEASED", value: "Released", color: "#26a69a" },
+      ],
+      statusId: "IN_DEV",
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
@@ -72,6 +83,7 @@ export function initTasks() {
       dependencies: ["Task 2"],
       project: "ProjectSample",
       displayOrder: 6,
+      statusId: "BLOCKED",
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),

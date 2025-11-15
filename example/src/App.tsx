@@ -23,12 +23,19 @@ const GLOBAL_TASK_STATUSES: TaskStatusOption[] = [
 const App = () => {
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
   const [tasks, setTasks] = React.useState<Task[]>(() => initTasks());
-  const [plainTasks] = React.useState<Task[]>(() =>
+  const [plainTasks, setPlainTasks] = React.useState<Task[]>(() =>
     initTasks().map(t => ({
       ...t,
       statusId: undefined,
       statuses: undefined,
     }))
+  );
+  const [tasksWithoutProgress, setTasksWithoutProgress] = React.useState<Task[]>(
+    () =>
+      initTasks().map(t => ({
+        ...t,
+        progressEnabled: false,
+      }))
   );
   const [isChecked, setIsChecked] = React.useState(true);
   let columnWidth = 65;
@@ -105,6 +112,97 @@ const App = () => {
     return conf;
   };
 
+  const handleTaskChangePlain = (task: Task) => {
+    console.log("On date change (no-status chart) Id:" + task.id);
+    let newTasks = plainTasks.map(t => (t.id === task.id ? task : t));
+
+    if (task.type === "project") {
+      const prevProject = plainTasks.find(t => t.id === task.id);
+      if (prevProject) {
+        const delta = task.start.getTime() - prevProject.start.getTime();
+        if (delta !== 0) {
+          const children = plainTasks.filter(t => t.project === task.id);
+          for (const child of children) {
+            const movedChild: Task = {
+              ...child,
+              start: new Date(child.start.getTime() + delta),
+              end: new Date(child.end.getTime() + delta),
+            };
+            newTasks = newTasks.map(t => (t.id === movedChild.id ? movedChild : t));
+          }
+        }
+      }
+    }
+
+    const projectId =
+      task.project || (task.type === "project" ? task.id : undefined);
+    if (projectId) {
+      const [start, end] = getStartEndDateForProject(newTasks, projectId);
+      const projectIndex = newTasks.findIndex(t => t.id === projectId);
+      if (projectIndex >= 0) {
+        const project = newTasks[projectIndex];
+        if (
+          project.start.getTime() !== start.getTime() ||
+          project.end.getTime() !== end.getTime()
+        ) {
+          const changedProject = { ...project, start, end };
+          newTasks = newTasks.map(t => (t.id === projectId ? changedProject : t));
+        }
+      }
+    }
+
+    const progressProjectId =
+      task.project || (task.type === "project" ? task.id : undefined);
+    if (progressProjectId) {
+      const projectIndex = newTasks.findIndex(t => t.id === progressProjectId);
+      if (projectIndex >= 0) {
+        const progress = getProgressForProject(newTasks, progressProjectId);
+        const project = newTasks[projectIndex];
+        if (project.progress !== progress) {
+          const changedProject = { ...project, progress };
+          newTasks = newTasks.map(t =>
+            t.id === progressProjectId ? changedProject : t
+          );
+        }
+      }
+    }
+
+    setPlainTasks(newTasks);
+  };
+
+  const handleTaskDeletePlain = (task: Task) => {
+    const conf = window.confirm(
+      "Are you sure about (no-status chart) " + task.name + " ?"
+    );
+    if (conf) {
+      setPlainTasks(plainTasks.filter(t => t.id !== task.id));
+    }
+    return conf;
+  };
+
+  const handleProgressChangePlain = async (task: Task) => {
+    console.log("On progress change (no-status chart) Id:" + task.id);
+    let newTasks = plainTasks.map(t => (t.id === task.id ? task : t));
+
+    const projectId =
+      task.project || (task.type === "project" ? task.id : undefined);
+    if (projectId) {
+      const projectIndex = newTasks.findIndex(t => t.id === projectId);
+      if (projectIndex >= 0) {
+        const progress = getProgressForProject(newTasks, projectId);
+        const project = newTasks[projectIndex];
+        if (project.progress !== progress) {
+          const changedProject = { ...project, progress };
+          newTasks = newTasks.map(t =>
+            t.id === projectId ? changedProject : t
+          );
+        }
+      }
+    }
+
+    setPlainTasks(newTasks);
+  };
+
   const handleProgressChange = async (task: Task) => {
     console.log("On progress change Id:" + task.id);
     let newTasks = tasks.map(t => (t.id === task.id ? task : t));
@@ -123,6 +221,106 @@ const App = () => {
     }
 
     setTasks(newTasks);
+  };
+
+  const handleTaskChangeNoProgress = (task: Task) => {
+    console.log("On date change (no-progress chart) Id:" + task.id);
+    let newTasks = tasksWithoutProgress.map(t => (t.id === task.id ? task : t));
+
+    if (task.type === "project") {
+      const prevProject = tasksWithoutProgress.find(t => t.id === task.id);
+      if (prevProject) {
+        const delta = task.start.getTime() - prevProject.start.getTime();
+        if (delta !== 0) {
+          const children = tasksWithoutProgress.filter(t => t.project === task.id);
+          for (const child of children) {
+            const movedChild: Task = {
+              ...child,
+              start: new Date(child.start.getTime() + delta),
+              end: new Date(child.end.getTime() + delta),
+            };
+            newTasks = newTasks.map(t => (t.id === movedChild.id ? movedChild : t));
+          }
+        }
+      }
+    }
+
+    const projectId =
+      task.project || (task.type === "project" ? task.id : undefined);
+    if (projectId) {
+      const [start, end] = getStartEndDateForProject(newTasks, projectId);
+      const projectIndex = newTasks.findIndex(t => t.id === projectId);
+      if (projectIndex >= 0) {
+        const project = newTasks[projectIndex];
+        if (
+          project.start.getTime() !== start.getTime() ||
+          project.end.getTime() !== end.getTime()
+        ) {
+          const changedProject = { ...project, start, end };
+          newTasks = newTasks.map(t => (t.id === projectId ? changedProject : t));
+        }
+      }
+    }
+
+    const progressProjectId =
+      task.project || (task.type === "project" ? task.id : undefined);
+    if (progressProjectId) {
+      const projectIndex = newTasks.findIndex(t => t.id === progressProjectId);
+      if (projectIndex >= 0) {
+        const progress = getProgressForProject(newTasks, progressProjectId);
+        const project = newTasks[projectIndex];
+        if (project.progress !== progress) {
+          const changedProject = { ...project, progress };
+          newTasks = newTasks.map(t =>
+            t.id === progressProjectId ? changedProject : t
+          );
+        }
+      }
+    }
+
+    setTasksWithoutProgress(newTasks);
+  };
+
+  const handleTaskDeleteNoProgress = (task: Task) => {
+    const conf = window.confirm(
+      "Are you sure about (no-progress chart) " + task.name + " ?"
+    );
+    if (conf) {
+      setTasksWithoutProgress(tasksWithoutProgress.filter(t => t.id !== task.id));
+    }
+    return conf;
+  };
+
+  const handleProgressChangeNoProgress = async (task: Task) => {
+    console.log("On progress change (no-progress chart) Id:" + task.id);
+    let newTasks = tasksWithoutProgress.map(t => (t.id === task.id ? task : t));
+
+    const projectId =
+      task.project || (task.type === "project" ? task.id : undefined);
+    if (projectId) {
+      const projectIndex = newTasks.findIndex(t => t.id === projectId);
+      if (projectIndex >= 0) {
+        const progress = getProgressForProject(newTasks, projectId);
+        const project = newTasks[projectIndex];
+        if (project.progress !== progress) {
+          const changedProject = { ...project, progress };
+          newTasks = newTasks.map(t =>
+            t.id === projectId ? changedProject : t
+          );
+        }
+      }
+    }
+
+    setTasksWithoutProgress(newTasks);
+  };
+
+  const handleStatusChangeNoProgress = async (task: Task, statusId: string) => {
+    console.log(
+      "On status change (no-progress chart) Id:" + task.id + " -> " + statusId
+    );
+    setTasksWithoutProgress(prev =>
+      prev.map(t => (t.id === task.id ? { ...task, statusId } : t))
+    );
   };
 
   const handleStatusChange = async (task: Task, statusId: string) => {
@@ -147,6 +345,16 @@ const App = () => {
   const handleExpanderClick = (task: Task) => {
     setTasks(tasks.map(t => (t.id === task.id ? task : t)));
     console.log("On expander click Id:" + task.id);
+  };
+
+  const handleExpanderClickPlain = (task: Task) => {
+    setPlainTasks(plainTasks.map(t => (t.id === task.id ? task : t)));
+    console.log("On expander click (no-status chart) Id:" + task.id);
+  };
+
+  const handleExpanderClickNoProgress = (task: Task) => {
+    setTasksWithoutProgress(tasksWithoutProgress.map(t => (t.id === task.id ? task : t)));
+    console.log("On expander click (no-progress chart) Id:" + task.id);
   };
 
   // Demonstrate custom rendering of the first (Name) column in the task list.
@@ -186,16 +394,33 @@ const App = () => {
       <Gantt
         tasks={plainTasks}
         viewMode={view}
-        onDateChange={handleTaskChange}
-        onDelete={handleTaskDelete}
-        onProgressChange={handleProgressChange}
+        onDateChange={handleTaskChangePlain}
+        onDelete={handleTaskDeletePlain}
+        onProgressChange={handleProgressChangePlain}
         onDoubleClick={handleDblClick}
         onClick={handleClick}
         onSelect={handleSelect}
-        onExpanderClick={handleExpanderClick}
+        onExpanderClick={handleExpanderClickPlain}
         listCellWidth={isChecked ? "155px" : ""}
         columnWidth={columnWidth}
         nameRenderer={nameRenderer}
+      />
+      <h3>Gantt Without Progress Column</h3>
+      <Gantt
+        tasks={tasksWithoutProgress}
+        viewMode={view}
+        onDateChange={handleTaskChangeNoProgress}
+        onDelete={handleTaskDeleteNoProgress}
+        onProgressChange={handleProgressChangeNoProgress}
+        onStatusChange={handleStatusChangeNoProgress}
+        onDoubleClick={handleDblClick}
+        onClick={handleClick}
+        onSelect={handleSelect}
+        onExpanderClick={handleExpanderClickNoProgress}
+        listCellWidth={isChecked ? "155px" : ""}
+        columnWidth={columnWidth}
+        nameRenderer={nameRenderer}
+        taskStatuses={GLOBAL_TASK_STATUSES}
       />
     </div>
   );

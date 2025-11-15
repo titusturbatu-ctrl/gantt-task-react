@@ -39,6 +39,7 @@ export type TaskListProps = {
     fontFamily: string;
     fontSize: string;
     showStatusColumn?: boolean;
+    showProgressColumn?: boolean;
   }>;
   TaskListTable: React.FC<{
     rowHeight: number;
@@ -67,6 +68,7 @@ export type TaskListProps = {
       children: Task[]
     ) => void | boolean | Promise<void> | Promise<boolean>;
     showStatusColumn?: boolean;
+    showProgressColumn?: boolean;
   }>;
 };
 
@@ -109,12 +111,21 @@ export const TaskList: React.FC<TaskListProps> = ({
     return hasStatusList || hasStatusId;
   });
 
+  // Progress column is controlled via per-task `progressEnabled` flag.
+  // If at least one task has progressEnabled !== false, we show the column.
+  const showProgressColumn = tasks.some(t => {
+    const anyTask = t as any;
+    if (anyTask.progressEnabled === undefined) return true;
+    return !!anyTask.progressEnabled;
+  });
+
   const headerProps = {
     headerHeight,
     fontFamily,
     fontSize,
     rowWidth,
     showStatusColumn,
+    showProgressColumn,
   };
   const selectedTaskId = selectedTask ? selectedTask.id : "";
   const tableProps = {
@@ -133,6 +144,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     taskStatuses,
     onStatusChange,
     showStatusColumn,
+    showProgressColumn,
   } as const;
 
   return (

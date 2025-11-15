@@ -147,25 +147,25 @@ npm start
 
 ### Task
 
-| Parameter Name | Type     | Description                                                                                                        |
-| :------------- | :------- | :----------------------------------------------------------------------------------------------------------------- |
-| id\*           | string   | Task id.                                                                                                           |
-| name\*         | string   | Task display name.                                                                                                 |
-| type\*         | string   | Task display type: **task**, **milestone**, **project**                                                            |
-| start\*        | Date     | Task start date.                                                                                                   |
-| end\*          | Date     | Task end date.                                                                                                     |
-| progress\*     | number   | Task progress. Sets in percent from 0 to 100. (ignored for milestones)                                            |
-|                |          |                                                                                                                   |
-| dependencies   | string[] | Specifies the parent dependencies ids.                                                                             |
-| styles         | object   | Specifies the taskbar styling settings locally. Object is passed with the following attributes:                    |
-|                |          | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                                |
-|                |          | - **backgroundSelectedColor**: String. Specifies the taskbar background fill color locally on select.              |
-|                |          | - **progressColor**: String. Specifies the taskbar progress fill color locally.                                    |
-|                |          | - **progressSelectedColor**: String. Specifies the taskbar progress fill color globally on select.                 |
-| isDisabled     | bool     | Disables all action for current task.                                                                              |
-| fontSize       | string   | Specifies the taskbar font size locally.                                                                           |
-| project        | string   | Task project name                                                                                                  |
-| hideChildren   | bool     | Hide children items. Parameter works with project type only                                                        |
+| Parameter Name   | Type     | Description                                                                                                                                      |
+| :--------------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| id\*             | string   | Task id.                                                                                                                                         |
+| name\*           | string   | Task display name.                                                                                                                               |
+| type\*           | string   | Task display type: **task**, **milestone**, **project**                                                                                          |
+| start\*          | Date     | Task start date.                                                                                                                                 |
+| end\*            | Date     | Task end date.                                                                                                                                   |
+| progress\*       | number   | Task progress. Sets in percent from 0 to 100. (ignored for milestones)                                                                          |
+| progressEnabled  | bool     | Optional. When `false`, hides the **Progress** column cell and disables the progress drag handle for this task. Default is `true` when omitted. |
+| dependencies     | string[] | Specifies the parent dependencies ids.                                                                                                           |
+| styles           | object   | Specifies the taskbar styling settings locally. Object is passed with the following attributes:                                                  |
+|                  |          | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                                                              |
+|                  |          | - **backgroundSelectedColor**: String. Specifies the taskbar background fill color locally on select.                                            |
+|                  |          | - **progressColor**: String. Specifies the taskbar progress fill color locally.                                                                  |
+|                  |          | - **progressSelectedColor**: String. Specifies the taskbar progress fill color globally on select.                                               |
+| isDisabled       | bool     | Disables all action for current task.                                                                                                            |
+| fontSize         | string   | Specifies the taskbar font size locally.                                                                                                         |
+| project          | string   | Task project name                                                                                                                                |
+| hideChildren     | bool     | Hide children items. Parameter works with project type only                                                                                      |
 
 *Required
 
@@ -192,6 +192,14 @@ npm start
   - If **no** tasks have any status metadata and `taskStatuses` is not provided:
     - The Status column is **not rendered**.
     - Bar colors behave exactly like the original library (no status-based coloring).
+  - The example app now includes:
+    - A default chart with statuses.
+    - A chart “Without Statuses” that omits all status metadata.
+    - A chart “Without Progress Column” that uses `progressEnabled: false` on all tasks to hide the Progress column and progress drag handles while keeping statuses active.
+  - When **all** tasks passed to a `Gantt` instance have `progressEnabled === false`:
+    - The **Progress** column header and cells are not rendered.
+    - The progress drag handles are hidden.
+    - The colored progress fill on the bars is visually removed (only the background bar is shown), while the underlying `progress` values remain available in data.
 
 Example usage:
 

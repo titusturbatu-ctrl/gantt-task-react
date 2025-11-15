@@ -281,12 +281,19 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       </g>
       <g className="bar" fontFamily={fontFamily} fontSize={fontSize}>
         {tasks.map(task => {
+          const anyTask = task as any;
+          const progressEnabled =
+            anyTask.progressEnabled === undefined
+              ? true
+              : !!anyTask.progressEnabled;
           return (
             <TaskItem
               task={task}
               arrowIndent={arrowIndent}
               taskHeight={taskHeight}
-              isProgressChangeable={!!onProgressChange && !task.isDisabled}
+              isProgressChangeable={
+                !!onProgressChange && !task.isDisabled && progressEnabled
+              }
               isDateChangeable={!!onDateChange && !task.isDisabled}
               isDelete={!task.isDisabled}
               onEventStart={handleBarEventStart}

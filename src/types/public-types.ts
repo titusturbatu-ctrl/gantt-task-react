@@ -33,6 +33,18 @@ export interface Task {
    */
   progress: number;
 
+  /**
+   * Controls whether this task participates in progress editing UI
+   * (Progress column and progress drag handle).
+   *
+   * - If `false`, the Progress column cell is hidden for this task and the
+   *   progress drag handle is disabled.
+   * - If all tasks in a Gantt instance have `progressEnabled === false`,
+   *   the Progress column header and cells are not rendered at all.
+   * - Defaults to `true` (or enabled) when omitted.
+   */
+  progressEnabled?: boolean;
+
   styles?: {
     backgroundColor?: string;
     backgroundSelectedColor?: string;
@@ -157,6 +169,8 @@ export interface StylingOption {
     fontSize: string;
     /** Whether to render the Status column. Defaults to true. */
     showStatusColumn?: boolean;
+    /** Whether to render the Progress column. Defaults to true. */
+    showProgressColumn?: boolean;
   }>;
   TaskListTable?: React.FC<{
     rowHeight: number;
@@ -195,6 +209,8 @@ export interface StylingOption {
     ) => void | boolean | Promise<void> | Promise<boolean>;
     /** Whether to render the Status column. Defaults to true. */
     showStatusColumn?: boolean;
+    /** Whether to render the Progress column. Defaults to true. */
+    showProgressColumn?: boolean;
   }>;
 }
 

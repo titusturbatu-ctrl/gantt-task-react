@@ -259,12 +259,24 @@ const convertToBar = (
     x2 = x1 + handleWidth * 2;
   }
 
-  const [progressWidth, progressX] = progressWithByParams(
-    x1,
-    x2,
-    task.progress,
-    rtl
-  );
+  const anyTask = task as any;
+  const progressEnabled =
+    anyTask.progressEnabled === undefined ? true : !!anyTask.progressEnabled;
+
+  let progressWidth: number;
+  let progressX: number;
+  if (progressEnabled) {
+    [progressWidth, progressX] = progressWithByParams(
+      x1,
+      x2,
+      task.progress,
+      rtl
+    );
+  } else {
+    // Visually hide the progress fill while keeping the underlying progress value.
+    progressWidth = 0;
+    progressX = rtl ? x2 : x1;
+  }
   const y = taskYCoordinate(index, rowHeight, taskHeight);
   const hideChildren = task.type === "project" ? task.hideChildren : undefined;
 
@@ -529,8 +541,15 @@ const handleTaskBySVGMouseEventForBar = (
 ): { isChanged: boolean; changedTask: BarTask } => {
   const changedTask: BarTask = { ...selectedTask };
   let isChanged = false;
+  const anyTask = selectedTask as any;
+  const progressEnabled =
+    anyTask.progressEnabled === undefined ? true : !!anyTask.progressEnabled;
   switch (action) {
     case "progress":
+      if (!progressEnabled) {
+        // Progress adjustments are disabled for this task.
+        return { isChanged: false, changedTask: selectedTask };
+      }
       if (rtl) {
         changedTask.progress = progressByXRTL(svgX, selectedTask);
       } else {
@@ -538,14 +557,19 @@ const handleTaskBySVGMouseEventForBar = (
       }
       isChanged = changedTask.progress !== selectedTask.progress;
       if (isChanged) {
-        const [progressWidth, progressX] = progressWithByParams(
-          changedTask.x1,
-          changedTask.x2,
-          changedTask.progress,
-          rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        if (progressEnabled) {
+          const [progressWidth, progressX] = progressWithByParams(
+            changedTask.x1,
+            changedTask.x2,
+            changedTask.progress,
+            rtl
+          );
+          changedTask.progressWidth = progressWidth;
+          changedTask.progressX = progressX;
+        } else {
+          changedTask.progressWidth = 0;
+          changedTask.progressX = rtl ? changedTask.x2 : changedTask.x1;
+        }
       }
       break;
     case "start": {
@@ -570,14 +594,19 @@ const handleTaskBySVGMouseEventForBar = (
             timeStep
           );
         }
-        const [progressWidth, progressX] = progressWithByParams(
-          changedTask.x1,
-          changedTask.x2,
-          changedTask.progress,
-          rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        if (progressEnabled) {
+          const [progressWidth, progressX] = progressWithByParams(
+            changedTask.x1,
+            changedTask.x2,
+            changedTask.progress,
+            rtl
+          );
+          changedTask.progressWidth = progressWidth;
+          changedTask.progressX = progressX;
+        } else {
+          changedTask.progressWidth = 0;
+          changedTask.progressX = rtl ? changedTask.x2 : changedTask.x1;
+        }
       }
       break;
     }
@@ -603,14 +632,19 @@ const handleTaskBySVGMouseEventForBar = (
             timeStep
           );
         }
-        const [progressWidth, progressX] = progressWithByParams(
-          changedTask.x1,
-          changedTask.x2,
-          changedTask.progress,
-          rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        if (progressEnabled) {
+          const [progressWidth, progressX] = progressWithByParams(
+            changedTask.x1,
+            changedTask.x2,
+            changedTask.progress,
+            rtl
+          );
+          changedTask.progressWidth = progressWidth;
+          changedTask.progressX = progressX;
+        } else {
+          changedTask.progressWidth = 0;
+          changedTask.progressX = rtl ? changedTask.x2 : changedTask.x1;
+        }
       }
       break;
     }
@@ -638,14 +672,19 @@ const handleTaskBySVGMouseEventForBar = (
         );
         changedTask.x1 = newMoveX1;
         changedTask.x2 = newMoveX2;
-        const [progressWidth, progressX] = progressWithByParams(
-          changedTask.x1,
-          changedTask.x2,
-          changedTask.progress,
-          rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        if (progressEnabled) {
+          const [progressWidth, progressX] = progressWithByParams(
+            changedTask.x1,
+            changedTask.x2,
+            changedTask.progress,
+            rtl
+          );
+          changedTask.progressWidth = progressWidth;
+          changedTask.progressX = progressX;
+        } else {
+          changedTask.progressWidth = 0;
+          changedTask.progressX = rtl ? changedTask.x2 : changedTask.x1;
+        }
       }
       break;
     }

@@ -31,6 +31,7 @@ export const TaskListTableDefault: React.FC<{
     children: Task[]
   ) => void | boolean | Promise<void> | Promise<boolean>;
   showStatusColumn?: boolean;
+  showProgressColumn?: boolean;
 }> = ({
   rowHeight,
   rowWidth,
@@ -44,6 +45,7 @@ export const TaskListTableDefault: React.FC<{
   taskStatuses,
   onStatusChange,
   showStatusColumn = true,
+  showProgressColumn = true,
 }) => {
   // Using input-format dates (YYYY-MM-DD) for display consistency
   const toInputDateValue = (date: Date) => {
@@ -104,7 +106,10 @@ export const TaskListTableDefault: React.FC<{
   };
 
   const handleProgressInputChange = async (t: Task, value: string) => {
-    if (!onProgressChange) return;
+    const anyTask = t as any;
+    const progressEnabled =
+      anyTask.progressEnabled === undefined ? true : !!anyTask.progressEnabled;
+    if (!onProgressChange || !progressEnabled) return;
     const num = Number(value);
     const clamped = Math.max(0, Math.min(100, isNaN(num) ? 0 : num));
     const newTask: Task = { ...t, progress: clamped };
@@ -123,6 +128,11 @@ export const TaskListTableDefault: React.FC<{
       }}
     >
       {tasks.map(t => {
+        const anyTask = t as any;
+        const progressEnabled =
+          anyTask.progressEnabled === undefined
+            ? true
+            : !!anyTask.progressEnabled;
         let expanderSymbol = "";
         if (t.hideChildren === false) {
           expanderSymbol = "▼";
@@ -260,27 +270,36 @@ export const TaskListTableDefault: React.FC<{
                 })() : null}
               </div>
             )}
-            <div
-              className={styles.taskListCell}
-              style={{
-                minWidth: "80px",
-                maxWidth: "80px",
-                padding: "0 8px",
-              }}
-            >
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={t.type === "milestone" ? "" : String(t.progress)}
-                onChange={e =>
-                  handleProgressInputChange(t, e.currentTarget.value)
-                }
-                onKeyDown={e => e.stopPropagation()}
-                disabled={!(onProgressChange && !t.isDisabled && t.type === "task")}
-                style={{ width: "100%", boxSizing: "border-box" }}
-              />
-            </div>
+            {showProgressColumn && progressEnabled && (
+              <div
+                className={styles.taskListCell}
+                style={{
+                  minWidth: "80px",
+                  maxWidth: "80px",
+                  padding: "0 8px",
+                }}
+              >
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={t.type === "milestone" ? "" : String(t.progress)}
+                  onChange={e =>
+                    handleProgressInputChange(t, e.currentTarget.value)
+                  }
+                  onKeyDown={e => e.stopPropagation()}
+                  disabled={
+                    !(
+                      onProgressChange &&
+                      !t.isDisabled &&
+                      t.type === "task" &&
+                      progressEnabled
+                    )
+                  }
+                  style={{ width: "100%", boxSizing: "border-box" }}
+                />
+              </div>
+            )}
           </div>
         );
       })}

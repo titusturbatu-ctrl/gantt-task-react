@@ -7,12 +7,16 @@ export const TaskListHeaderDefault: React.FC<{
   fontFamily: string;
   fontSize: string;
   showStatusColumn?: boolean;
+  showProgressColumn?: boolean;
 }> = ({
   headerHeight,
   fontFamily,
   fontSize,
   rowWidth,
   showStatusColumn = true,
+  // For backward compatibility we treat missing prop as "show"
+  // and will be driven by TaskList's computed value when provided.
+  showProgressColumn = true,
 }) => {
   return (
     <div
@@ -95,15 +99,17 @@ export const TaskListHeaderDefault: React.FC<{
             />
           </React.Fragment>
         )}
-        <div
-          className={styles.ganttTable_HeaderItem}
-          style={{
-            minWidth: "80px",
-            maxWidth: "80px",
-          }}
-        >
-          &nbsp;Progress
-        </div>
+        {showProgressColumn && (
+          <div
+            className={styles.ganttTable_HeaderItem}
+            style={{
+              minWidth: "80px",
+              maxWidth: "80px",
+            }}
+          >
+            &nbsp;Progress
+          </div>
+        )}
       </div>
     </div>
   );

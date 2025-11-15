@@ -495,7 +495,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
           scrollY={scrollY}
           scrollX={scrollX}
         />
-        {ganttEvent.changedTask && (
+        {ganttEvent.action === "mouseenter" && ganttEvent.changedTask && (
           <Tooltip
             arrowIndent={arrowIndent}
             rowHeight={rowHeight}

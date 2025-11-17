@@ -448,6 +448,89 @@ export const getProgressPoint = (
   return point.join(",");
 };
 
+/**
+ * Validates that a candidate task update does not violate dependency
+ * constraints, given the current barTasks collection.
+ *
+ * Baseline rules:
+ * - A task must not start before any of its dependencies end.
+ * - A task must not end after any of its dependent children start.
+ *
+ * Additional optional rules:
+ * - `task.startAfter`: this task must start at least N days after another
+ *   task ends.
+ * - `task.startBefore`: this task must start at least N days before another
+ *   task starts.
+ */
+export const isDateChangeAllowedByDependencies = (
+  candidate: Task,
+  barTasks: BarTask[]
+): boolean => {
+  const candidateId = candidate.id;
+  const candidateBar = barTasks.find(t => t.id === candidateId);
+  const msPerDay = 24 * 60 * 60 * 1000;
+
+  // 1) Enforce baseline constraints vs. predecessors (dependencies).
+  const depIds = candidate.dependencies ?? [];
+  for (const depId of depIds) {
+    const dep = barTasks.find(t => t.id === depId);
+    if (!dep) continue;
+
+    // Must not start before predecessor ends.
+    if (candidate.start.getTime() < dep.end.getTime()) {
+      return false;
+    }
+  }
+
+  // 2) Enforce baseline constraints vs. dependent children (successors).
+  const children = (candidateBar as BarTask | undefined)?.barChildren ?? [];
+  for (const child of children) {
+    const childDeps = child.dependencies ?? [];
+    if (!childDeps.includes(candidateId)) {
+      continue;
+    }
+
+    // Must not end after successor starts.
+    if (candidate.end.getTime() > child.start.getTime()) {
+      return false;
+    }
+  }
+
+  // 3) Enforce optional startAfter constraints on the candidate
+  // (start at least N days after another task ends).
+  const startAfterConstraints =
+    ((candidate as any).startAfter as { id: string; days: number }[]) ?? [];
+  for (const constraint of startAfterConstraints) {
+    if (!constraint || typeof constraint.id !== "string") continue;
+    const other = barTasks.find(t => t.id === constraint.id);
+    if (!other) continue;
+
+    const requiredMs = (constraint.days ?? 0) * msPerDay;
+    const gapMs = candidate.start.getTime() - other.end.getTime();
+    if (gapMs < requiredMs) {
+      return false;
+    }
+  }
+
+  // 4) Enforce optional startBefore constraints on the candidate
+  // (start at least N days before another task starts).
+  const startBeforeConstraints =
+    ((candidate as any).startBefore as { id: string; days: number }[]) ?? [];
+  for (const constraint of startBeforeConstraints) {
+    if (!constraint || typeof constraint.id !== "string") continue;
+    const other = barTasks.find(t => t.id === constraint.id);
+    if (!other) continue;
+
+    const requiredMs = (constraint.days ?? 0) * msPerDay;
+    const gapMs = other.start.getTime() - candidate.start.getTime();
+    if (gapMs < requiredMs) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const startByX = (x: number, xStep: number, task: BarTask) => {
   if (x >= task.x2 - task.handleWidth * 2) {
     x = task.x2 - task.handleWidth * 2;

@@ -15,6 +15,8 @@ export type TaskItemProps = {
   isDateChangeable: boolean;
   isDelete: boolean;
   isSelected: boolean;
+  /** Whether this task has just failed a validation check (e.g. dependencies). */
+  isInvalid: boolean;
   rtl: boolean;
   onEventStart: (
     action: GanttContentMoveAction,

@@ -13,6 +13,7 @@ export const Bar: React.FC<TaskItemProps> = ({
   rtl,
   onEventStart,
   isSelected,
+  isInvalid,
 }) => {
   const progressPoint = getProgressPoint(
     +!rtl * task.progressWidth + task.progressX,
@@ -20,8 +21,15 @@ export const Bar: React.FC<TaskItemProps> = ({
     task.height
   );
   const handleHeight = task.height - 2;
+  const wrapperClass = [
+    styles.barWrapper,
+    isInvalid ? styles.barWrapperInvalid : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <g className={styles.barWrapper} tabIndex={0}>
+    <g className={wrapperClass} tabIndex={0}>
       <BarDisplay
         x={task.x1}
         y={task.y}

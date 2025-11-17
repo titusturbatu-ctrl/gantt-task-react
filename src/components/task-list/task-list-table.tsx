@@ -98,11 +98,27 @@ export const TaskListTableDefault: React.FC<{
     };
     const children = (t as any).barChildren ?? [];
     try {
-      await onDateChange(newTask, children);
-    } catch (_) {}
-    // Clear local state after successful commit so it reflects canonical value
-    const key = `${t.id}:${field}`;
-    setDateInputValue(key, undefined);
+      const result = await onDateChange(newTask, children);
+      // If the handler explicitly returns false, treat this as a rejected change
+      // and restore the input to the canonical task value instead of clearing.
+      const key = `${t.id}:${field}`;
+      if (result === false) {
+        const restored =
+          field === "start"
+            ? toInputDateValue(t.start)
+            : toInputDateValue(t.end);
+        setDateInputValue(key, restored);
+      } else {
+        // Clear local state after successful commit so it reflects canonical value
+        setDateInputValue(key, undefined);
+      }
+    } catch (_) {
+      // On error, also restore the canonical value.
+      const key = `${t.id}:${field}`;
+      const restored =
+        field === "start" ? toInputDateValue(t.start) : toInputDateValue(t.end);
+      setDateInputValue(key, restored);
+    }
   };
 
   const handleProgressInputChange = async (t: Task, value: string) => {

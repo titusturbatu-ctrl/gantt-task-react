@@ -1,11 +1,18 @@
 import { Task } from "gantt-task-react";
 
+// Local extension of the library Task type to allow start-offset constraints
+// in this example app, without depending on the exact published Task shape.
+type TaskWithOffsets = Task & {
+  startAfter?: { id: string; days: number }[];
+  startBefore?: { id: string; days: number }[];
+};
+
 export function initTasks() {
   const currentDate = new Date();
-  const tasks: Task[] = [
+  const tasks: TaskWithOffsets[] = [
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 21),
       name: "Some Project",
       id: "ProjectSample",
       progress: 25,
@@ -15,13 +22,7 @@ export function initTasks() {
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        2,
-        12,
-        28
-      ),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 3),
       name: "Idea",
       id: "Task 0",
       progress: 45,
@@ -31,36 +32,44 @@ export function initTasks() {
       statusId: "IN_PROGRESS",
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 2),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4, 0, 0),
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 6),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
       name: "Research",
       id: "Task 1",
       progress: 25,
       dependencies: ["Task 0"],
+      // Start at least 2 days after "Idea" (Task 0) finishes
+      startAfter: [{ id: "Task 0", days: 2 }],
       type: "task",
       project: "ProjectSample",
       displayOrder: 3,
       statusId: "NOT_STARTED",
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8, 0, 0),
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 11),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 13),
       name: "Discussion with team",
       id: "Task 2",
       progress: 10,
       dependencies: ["Task 1"],
+      // Start at least 3 days after "Research" (Task 1) ends
+      startAfter: [{ id: "Task 1", days: 3 }],
       type: "task",
       project: "ProjectSample",
       displayOrder: 4,
       statusId: "ON_HOLD",
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 9, 0, 0),
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 14),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 17),
       name: "Developing",
       id: "Task 3",
       progress: 2,
       dependencies: ["Task 2"],
+      // Start 1 day after "Discussion with team" (Task 2) ends
+      // and 2 days before "Review" (Task 4) starts.
+      startAfter: [{ id: "Task 2", days: 1 }],
+      startBefore: [{ id: "Task 4", days: 2 }],
       type: "task",
       project: "ProjectSample",
       displayOrder: 5,
@@ -74,8 +83,8 @@ export function initTasks() {
       statusId: "IN_DEV",
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 10),
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 16),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18),
       name: "Review",
       id: "Task 4",
       type: "task",
@@ -86,8 +95,8 @@ export function initTasks() {
       statusId: "BLOCKED",
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 21),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 21),
       name: "Release",
       id: "Task 6",
       progress: currentDate.getMonth(),

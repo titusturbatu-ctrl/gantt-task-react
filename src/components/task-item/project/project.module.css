@@ -3,6 +3,12 @@
   outline: none;
 }
 
+.projectWrapperInvalid .projectBackground,
+.projectWrapperInvalid .projectTop {
+  stroke: #e53935;
+  stroke-width: 2px;
+}
+
 .projectBackground {
   user-select: none;
   opacity: 0.6;

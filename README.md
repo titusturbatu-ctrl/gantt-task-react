@@ -89,18 +89,18 @@ npm start
 
 ### EventOption
 
-| Parameter Name       | Type                                                                          | Description                                                                                       |
-| :------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| onSelect             | (task: Task, isSelected: boolean) => void                                     | Specifies the function to be executed on the taskbar select or unselect event.                    |
-| onDoubleClick        | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onDoubleClick event.                         |
-| onClick              | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onClick event.                               |
-| onDelete\*           | (task: Task) => void/boolean/Promise<void>/Promise<boolean>                   | Specifies the function to be executed on the taskbar on Delete button press event.                |
-| onDateChange\*       | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task dates change (drag or via table).                                             |
-| onProgressChange\*   | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task progress changes (drag or via table).                                         |
-| onExpanderClick\*    | (task: Task) => void                                                          | Specifies the function to be executed on the table expander click                                 |
-| timeStep             | number                                                                        | A time step value for onDateChange. Specify in milliseconds.                                      |
+| Parameter Name       | Type                                                                          | Description                                                                                                         |
+| :------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------ |
+| onSelect             | (task: Task, isSelected: boolean) => void                                     | Specifies the function to be executed on the taskbar select or unselect event.                                      |
+| onDoubleClick        | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onDoubleClick event.                                           |
+| onClick              | (task: Task) => void                                                          | Specifies the function to be executed on the taskbar onClick event.                                                 |
+| onDelete\*           | (task: Task) => void/boolean/Promise<void>/Promise<boolean>                   | Specifies the function to be executed on the taskbar on Delete button press event.                                  |
+| onDateChange\*       | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task dates change (drag or via table).                                                              |
+| onProgressChange\*   | (task: Task, children: Task[]) => void/boolean/Promise<void>/Promise<boolean> | Invoked when a task progress changes (drag or via table).                                                           |
+| onExpanderClick\*    | (task: Task) => void                                                          | Specifies the function to be executed on the table expander click                                                   |
+| timeStep             | number                                                                        | A time step value for onDateChange. Specify in milliseconds.                                                        |
 
-* Chart undoes operation if method return false or error. Parameter children returns one level deep records.
+* Chart undoes operation if the method returns `false`, throws an error, **or a dependency/constraint rule is violated**. Parameter `children` returns one level deep records.
 
 ### DisplayOption
 
@@ -147,25 +147,27 @@ npm start
 
 ### Task
 
-| Parameter Name   | Type     | Description                                                                                                                                      |
-| :--------------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
-| id\*             | string   | Task id.                                                                                                                                         |
-| name\*           | string   | Task display name.                                                                                                                               |
-| type\*           | string   | Task display type: **task**, **milestone**, **project**                                                                                          |
-| start\*          | Date     | Task start date.                                                                                                                                 |
-| end\*            | Date     | Task end date.                                                                                                                                   |
-| progress\*       | number   | Task progress. Sets in percent from 0 to 100. (ignored for milestones)                                                                          |
-| progressEnabled  | bool     | Optional. When `false`, hides the **Progress** column cell and disables the progress drag handle for this task. Default is `true` when omitted. |
-| dependencies     | string[] | Specifies the parent dependencies ids.                                                                                                           |
-| styles           | object   | Specifies the taskbar styling settings locally. Object is passed with the following attributes:                                                  |
-|                  |          | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                                                              |
-|                  |          | - **backgroundSelectedColor**: String. Specifies the taskbar background fill color locally on select.                                            |
-|                  |          | - **progressColor**: String. Specifies the taskbar progress fill color locally.                                                                  |
-|                  |          | - **progressSelectedColor**: String. Specifies the taskbar progress fill color globally on select.                                               |
-| isDisabled       | bool     | Disables all action for current task.                                                                                                            |
-| fontSize         | string   | Specifies the taskbar font size locally.                                                                                                         |
-| project          | string   | Task project name                                                                                                                                |
-| hideChildren     | bool     | Hide children items. Parameter works with project type only                                                                                      |
+| Parameter Name   | Type                           | Description                                                                                                                                      |
+| :--------------- | :----------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| id\*             | string                         | Task id.                                                                                                                                         |
+| name\*           | string                         | Task display name.                                                                                                                               |
+| type\*           | string                         | Task display type: **task**, **milestone**, **project**                                                                                          |
+| start\*          | Date                           | Task start date.                                                                                                                                 |
+| end\*            | Date                           | Task end date.                                                                                                                                   |
+| progress\*       | number                         | Task progress. Sets in percent from 0 to 100. (ignored for milestones)                                                                          |
+| progressEnabled  | bool                           | Optional. When `false`, hides the **Progress** column cell and disables the progress drag handle for this task. Default is `true` when omitted. |
+| dependencies     | string[]                       | Specifies the parent dependencies ids.                                                                                                           |
+| startAfter       | StartConstraint[]              | Optional. Require this task to start at least `days` days after the referenced task ends.                                                        |
+| startBefore      | StartConstraint[]              | Optional. Require this task to start at least `days` days before the referenced task starts.                                                     |
+| styles           | object                         | Specifies the taskbar styling settings locally. Object is passed with the following attributes:                                                  |
+|                  |                                | - **backgroundColor**: String. Specifies the taskbar background fill color locally.                                                              |
+|                  |                                | - **backgroundSelectedColor**: String. Specifies the taskbar background fill color locally on select.                                            |
+|                  |                                | - **progressColor**: String. Specifies the taskbar progress fill color locally.                                                                  |
+|                  |                                | - **progressSelectedColor**: String. Specifies the taskbar progress fill color globally on select.                                               |
+| isDisabled       | bool                           | Disables all action for current task.                                                                                                            |
+| fontSize         | string                         | Specifies the taskbar font size locally.                                                                                                         |
+| project          | string                         | Task project name                                                                                                                                |
+| hideChildren     | bool                           | Hide children items. Parameter works with project type only                                                                                      |
 
 *Required
 
@@ -200,6 +202,26 @@ npm start
     - The **Progress** column header and cells are not rendered.
     - The progress drag handles are hidden.
     - The colored progress fill on the bars is visually removed (only the background bar is shown), while the underlying `progress` values remain available in data.
+
+- **Dependency-aware date editing & start-offset constraints**
+  - The core Gantt implementation now validates date changes against:
+    - Basic finish-to-start rules (a task cannot start before any of its `dependencies` end, and cannot end after any dependent children start).
+    - Optional start-offset constraints on each task:
+      - `startAfter?: StartConstraint[]` — e.g. `[{ id: "TaskA", days: 1 }]` means “this task must start at least 1 day after TaskA ends”.
+      - `startBefore?: StartConstraint[]` — e.g. `[{ id: "TaskB", days: 2 }]` means “this task must start at least 2 days before TaskB starts”.
+  - Any drag or task-list date edit that violates these rules is rejected and reverted, and your `onDateChange` handler is only called if the move is valid.
+
+- **Visual feedback on invalid drags**
+  - When the user drags a bar into an invalid position (breaking dependencies or start constraints), the bar:
+    - Flashes with a red outline and a slight “pulse” animation while it is out-of-bounds.
+    - Snaps back to the last valid position when the drag ends or the change is rejected.
+  - This makes it clear why a drag is not allowed, without needing to inspect the underlying data.
+
+- **Tooltip shows scheduling constraints**
+  - The default tooltip (`StandardTooltipContent`) now includes any configured start constraints:
+    - A **Start after** line lists all `startAfter` rules for the task.
+    - A **Start before** line lists all `startBefore` rules for the task.
+  - This gives users a quick way to see why a task cannot be dragged earlier or later.
 
 Example usage:
 

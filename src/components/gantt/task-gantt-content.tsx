@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { EventOption } from "../../types/public-types";
 import { BarTask } from "../../types/bar-task";
 import { Arrow } from "../other/arrow";
-import { handleTaskBySVGMouseEvent } from "../../helpers/bar-helper";
+import {
+  handleTaskBySVGMouseEvent,
+  isDateChangeAllowedByDependencies,
+} from "../../helpers/bar-helper";
 import { isKeyboardEvent } from "../../helpers/other-helper";
 import { TaskItem } from "../task-item/task-item";
 import {
@@ -60,6 +63,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   const [xStep, setXStep] = useState(0);
   const [initEventX1Delta, setInitEventX1Delta] = useState(0);
   const [isMoving, setIsMoving] = useState(false);
+  const [invalidTaskId, setInvalidTaskId] = useState<string | null>(null);
 
   // create xStep
   useEffect(() => {
@@ -93,6 +97,11 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       );
       if (isChanged) {
         setGanttEvent({ action: ganttEvent.action, changedTask });
+
+        // Live validation feedback while dragging. We reuse the same
+        // dependency rules that gate final commits.
+        const isValid = isDateChangeAllowedByDependencies(changedTask, tasks);
+        setInvalidTaskId(isValid ? null : changedTask.id);
       }
     };
 
@@ -126,6 +135,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       svg.current.removeEventListener("mouseup", handleMouseUp);
       setGanttEvent({ action: "" });
       setIsMoving(false);
+       setInvalidTaskId(null);
 
       // custom operation start
       let operationSuccess = true;
@@ -190,6 +200,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     rtl,
     setFailedTask,
     setGanttEvent,
+    tasks,
   ]);
 
   /**
@@ -296,6 +307,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
               }
               isDateChangeable={!!onDateChange && !task.isDisabled}
               isDelete={!task.isDisabled}
+              isInvalid={invalidTaskId === task.id}
               onEventStart={handleBarEventStart}
               key={task.id}
               isSelected={!!selectedTask && task.id === selectedTask.id}

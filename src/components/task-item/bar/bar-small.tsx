@@ -11,14 +11,22 @@ export const BarSmall: React.FC<TaskItemProps> = ({
   isDateChangeable,
   onEventStart,
   isSelected,
+  isInvalid,
 }) => {
   const progressPoint = getProgressPoint(
     task.progressWidth + task.x1,
     task.y,
     task.height
   );
+  const wrapperClass = [
+    styles.barWrapper,
+    isInvalid ? styles.barWrapperInvalid : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <g className={styles.barWrapper} tabIndex={0}>
+    <g className={wrapperClass} tabIndex={0}>
       <BarDisplay
         x={task.x1}
         y={task.y}

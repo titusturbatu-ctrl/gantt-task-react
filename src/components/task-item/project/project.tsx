@@ -2,7 +2,11 @@ import React from "react";
 import { TaskItemProps } from "../task-item";
 import styles from "./project.module.css";
 
-export const Project: React.FC<TaskItemProps> = ({ task, isSelected }) => {
+export const Project: React.FC<TaskItemProps> = ({
+  task,
+  isSelected,
+  isInvalid,
+}) => {
   const barColor = isSelected
     ? task.styles.backgroundSelectedColor
     : task.styles.backgroundColor;
@@ -28,8 +32,15 @@ export const Project: React.FC<TaskItemProps> = ({ task, isSelected }) => {
     task.y + task.height / 2 - 1,
   ].join(",");
 
+  const wrapperClass = [
+    styles.projectWrapper,
+    isInvalid ? styles.projectWrapperInvalid : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <g tabIndex={0} className={styles.projectWrapper}>
+    <g tabIndex={0} className={wrapperClass}>
       <rect
         fill={barColor}
         x={task.x1}

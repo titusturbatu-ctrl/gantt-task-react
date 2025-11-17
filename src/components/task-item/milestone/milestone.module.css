@@ -3,6 +3,11 @@
   outline: none;
 }
 
+.milestoneWrapperInvalid .milestoneBackground {
+  stroke: #e53935;
+  stroke-width: 2px;
+}
+
 .milestoneBackground {
   user-select: none;
 }

@@ -3,6 +3,27 @@
   outline: none;
 }
 
+.barWrapperInvalid .barBackground {
+  stroke: #e53935;
+  stroke-width: 2px;
+}
+
+.barWrapperInvalid {
+  animation: barInvalidPulse 0.25s ease-out;
+}
+
+@keyframes barInvalidPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .barWrapper:hover .barHandle {
   visibility: visible;
   opacity: 1;

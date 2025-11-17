@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Task } from "../../types/public-types";
+import { Task, StartConstraint } from "../../types/public-types";
 import { BarTask } from "../../types/bar-task";
 import styles from "./tooltip.module.css";
 
@@ -121,6 +121,10 @@ export const StandardTooltipContent: React.FC<{
     fontSize,
     fontFamily,
   };
+
+  const startAfter = (task as any).startAfter as StartConstraint[] | undefined;
+  const startBefore = (task as any).startBefore as StartConstraint[] | undefined;
+
   return (
     <div className={styles.tooltipDefaultContainer} style={style}>
       <b style={{ fontSize: fontSize + 6 }}>{`${
@@ -140,6 +144,28 @@ export const StandardTooltipContent: React.FC<{
       <p className={styles.tooltipDefaultContainerParagraph}>
         {!!task.progress && `Progress: ${task.progress} %`}
       </p>
+      {startAfter && startAfter.length > 0 && (
+        <p className={styles.tooltipDefaultContainerParagraph}>
+          Start after:{" "}
+          {startAfter
+            .map(
+              c =>
+                `${c.id} (≥ ${typeof c.days === "number" ? c.days : 0} day(s) after end)`
+            )
+            .join(", ")}
+        </p>
+      )}
+      {startBefore && startBefore.length > 0 && (
+        <p className={styles.tooltipDefaultContainerParagraph}>
+          Start before:{" "}
+          {startBefore
+            .map(
+              c =>
+                `${c.id} (≥ ${typeof c.days === "number" ? c.days : 0} day(s) before start)`
+            )
+            .join(", ")}
+        </p>
+      )}
     </div>
   );
 };

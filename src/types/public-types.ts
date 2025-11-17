@@ -12,6 +12,28 @@ export enum ViewMode {
 }
 export type TaskType = "task" | "milestone" | "project";
 
+/**
+ * Describes a simple start-offset constraint between this task and another
+ * task in the chart.
+ *
+ * All offsets are expressed in whole days.
+ */
+export interface StartConstraint {
+  /**
+   * Id of the other task this constraint is defined against.
+   */
+  id: string;
+  /**
+   * Number of days for the constraint.
+   *
+   * - For `startAfter`, this means "start at least `days` days after
+   *   the other task ends".
+   * - For `startBefore`, this means "start at least `days` days before
+   *   the other task starts".
+   */
+  days: number;
+}
+
 export interface TaskStatusOption {
   id: string;
   value: string;
@@ -54,6 +76,28 @@ export interface Task {
   isDisabled?: boolean;
   project?: string;
   dependencies?: string[];
+  /**
+   * Additional scheduling constraints relative to other tasks.
+   *
+   * These do not affect arrow rendering (which is driven by `dependencies`)
+   * but are used to validate interactive date changes.
+   */
+  /**
+   * Require this task to start at least `days` days after the referenced
+   * task ends.
+   *
+   * Example: Task B must start 1 day after Task A ends:
+   *   TaskB.startAfter = [{ id: "TaskA", days: 1 }]
+   */
+  startAfter?: StartConstraint[];
+  /**
+   * Require this task to start at least `days` days before the referenced
+   * task starts.
+   *
+   * Example: Task A must start 2 days before Task B starts:
+   *   TaskA.startBefore = [{ id: "TaskB", days: 2 }]
+   */
+  startBefore?: StartConstraint[];
   hideChildren?: boolean;
   displayOrder?: number;
   /**

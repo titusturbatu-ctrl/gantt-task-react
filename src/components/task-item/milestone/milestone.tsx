@@ -7,6 +7,7 @@ export const Milestone: React.FC<TaskItemProps> = ({
   isDateChangeable,
   onEventStart,
   isSelected,
+  isInvalid,
 }) => {
   const transform = `rotate(45 ${task.x1 + task.height * 0.356} 
     ${task.y + task.height * 0.85})`;
@@ -16,8 +17,15 @@ export const Milestone: React.FC<TaskItemProps> = ({
       : task.styles.backgroundColor;
   };
 
+  const wrapperClass = [
+    styles.milestoneWrapper,
+    isInvalid ? styles.milestoneWrapperInvalid : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <g tabIndex={0} className={styles.milestoneWrapper}>
+    <g tabIndex={0} className={wrapperClass}>
       <rect
         fill={getBarColor()}
         x={task.x1}

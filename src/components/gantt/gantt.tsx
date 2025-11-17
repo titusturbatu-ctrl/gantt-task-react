@@ -17,7 +17,10 @@ import { VerticalScroll } from "../other/vertical-scroll";
 import { TaskListProps, TaskList } from "../task-list/task-list";
 import { TaskGantt } from "./task-gantt";
 import { BarTask } from "../../types/bar-task";
-import { convertToBarTasks } from "../../helpers/bar-helper";
+import {
+  convertToBarTasks,
+  isDateChangeAllowedByDependencies,
+} from "../../helpers/bar-helper";
 import { GanttEvent } from "../../types/gantt-task-actions";
 import { DateSetup } from "../../types/date-setup";
 import { HorizontalScroll } from "../other/horizontal-scroll";
@@ -411,6 +414,27 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
       onExpanderClick({ ...task, hideChildren: !task.hideChildren });
     }
   };
+
+  /**
+   * Internal wrapper around the consumer-provided onDateChange that first
+   * enforces dependency rules. Returning `false` signals a failed update so
+   * the chart can revert the visual change.
+   *
+   * Note: this is intentionally not marked `async` so its return type can
+   * remain compatible with the union type expected by GanttProps["onDateChange"].
+   */
+  const handleInternalDateChange: GanttProps["onDateChange"] = (task, children) => {
+    // If dependency rules fail, block the change entirely.
+    if (!isDateChangeAllowedByDependencies(task, barTasks)) {
+      return false;
+    }
+
+    if (!onDateChange) {
+      return;
+    }
+
+    return onDateChange(task, children);
+  };
   const gridProps: GridProps = {
     columnWidth,
     svgWidth,
@@ -448,7 +472,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     setGanttEvent,
     setFailedTask,
     setSelectedTask: handleSelectedTask,
-    onDateChange,
+    onDateChange: handleInternalDateChange,
     onProgressChange,
     onDoubleClick,
     onClick,
@@ -473,7 +497,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     nameRenderer,
     TaskListHeader,
     TaskListTable,
-    onDateChange,
+    onDateChange: handleInternalDateChange,
     onProgressChange,
     taskStatuses,
     onStatusChange,
